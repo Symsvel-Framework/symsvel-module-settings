@@ -24,6 +24,10 @@ Un module fournit un service implémentant `SettingDefinitionProviderInterface` 
 
 Ce endpoint est public par conception : un module ne doit jamais marquer comme public une donnée personnelle ou sensible. Le comportement HTTP et les règles de sécurité du projet hôte restent à valider en crash-test.
 
+### Test de routage
+
+Le test unitaire du contrôleur inspecte les arguments de l'attribut PHP `#[Route]` par `ReflectionAttribute::getArguments()`. Il ne faut pas utiliser `getPath()` ou `getMethods()` sur `Symfony\\Component\\Routing\\Attribute\\Route` : ces accesseurs ne font pas partie de son API. Le test de routage ne remplace pas le test HTTP de filtrage des secrets.
+
 ## Secrets
 
 `SettingSecretCipher` utilise libsodium secretbox, avec une clé dérivée de `kernel.secret`. Les valeurs sont chiffrées en base. **Changer APP_SECRET sans migration/rechiffrement des secrets rend les valeurs existantes illisibles.** Ne jamais exposer les valeurs secrètes dans les réponses API, logs ou écrans. La rotation de clé et l'API BO restent hors de ce premier jalon.
