@@ -30,4 +30,21 @@ final readonly class SettingDefinition
             throw new \InvalidArgumentException('Secret settings cannot be public.');
         }
     }
+    /**
+     * Returns a qualified copy without mutating the provider's declaration.
+     */
+    public function withKey(string $key): self
+    {
+        return new self(
+            key: $key,
+            label: $this->label,
+            group: $this->group,
+            type: $this->type,
+            required: $this->required,
+            secret: $this->secret,
+            public: $this->public,
+            blocking: $this->blocking,
+            description: $this->description,
+        );
+    }
 }
