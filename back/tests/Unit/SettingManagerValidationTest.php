@@ -28,6 +28,8 @@ final class SettingManagerValidationTest extends TestCase
         self::assertNull($this->normalize($definition, ''));
         self::assertSame('0', $this->normalize($definition, false));
         self::assertSame('1', $this->normalize($definition, true));
+        self::assertSame('0', $this->normalize($definition, '0'));
+        self::assertSame('1', $this->normalize($definition, '1'));
     }
 
     public function testRequiredBooleanCannotBeCleared(): void
