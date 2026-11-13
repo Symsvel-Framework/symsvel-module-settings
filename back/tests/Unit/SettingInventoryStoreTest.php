@@ -64,4 +64,40 @@ final class SettingInventoryStoreTest extends TestCase
         }
     }
 
+    public function testRestoreReinstatesPreviousInventoryAfterFailedPublication(): void
+    {
+        $backend = sys_get_temp_dir().'/symsvel-settings-inventory-'.bin2hex(random_bytes(8));
+        mkdir($backend);
+        try {
+            $store = new SettingInventoryStore();
+            $previous = ['schema' => 1, 'modules' => ['mails' => ['transport' => ['type' => 'string']]]];
+            $updated = ['schema' => 1, 'modules' => ['mails' => ['transport' => ['type' => 'email']]]];
+            $store->write($backend, $previous);
+            $store->write($backend, $updated);
+            $store->restore($backend, $previous);
+            self::assertSame($previous, $store->read($backend));
+        } finally {
+            @unlink($backend.'/.symsvel/modules-params.json');
+            @rmdir($backend.'/.symsvel');
+            @rmdir($backend);
+        }
+    }
+
+    public function testRejectsCorruptInventoryWithoutReplacingIt(): void
+    {
+        $backend = sys_get_temp_dir().'/symsvel-settings-inventory-'.bin2hex(random_bytes(8));
+        mkdir($backend);
+        mkdir($backend.'/.symsvel');
+        $path = $backend.'/.symsvel/modules-params.json';
+        file_put_contents($path, '{"schema":2,"modules":{}}');
+        try {
+            $this->expectException(\RuntimeException::class);
+            (new SettingInventoryStore())->read($backend);
+        } finally {
+            unlink($path);
+            rmdir($backend.'/.symsvel');
+            rmdir($backend);
+        }
+    }
+
 }
