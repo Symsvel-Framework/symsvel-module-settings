@@ -8,6 +8,10 @@ L'entité `SymSvel\Module\Settings\Entity\Setting` possède une clé unique (`se
 
 `Migration/Version20200101000000.php` utilise Doctrine Schema (aucun SQL spécifique MySQL). La compilation, l'ordonnancement et l'exécution relèvent de SymSvel Tooling. Une migration source déjà publiée ne doit pas être réécrite.
 
+## Convention architecturale des clés (ADR acceptée)
+
+La décision [ADR 0001](../adr/0001-setting-key-namespace.md) impose la clé canonique `module.parametre`. SymSvel devra préfixer automatiquement les clés courtes avec l'identifiant technique stable du module propriétaire, conserver les clés déjà correctement qualifiées et refuser les préfixes d'un autre module. Le stockage reste sur `setting_key` unique, sans migration. **Cette convention est actée mais sa qualification automatique n'est pas encore implémentée** : le registre actuel reçoit encore directement les clés déclarées. L'association entre fournisseurs et identifiants de modules sera raccordée au mécanisme existant après vérification des ADR et du code de chargement.
+
 ## Déclaration des paramètres
 
 Un module fournit un service implémentant `SettingDefinitionProviderInterface` ; Symfony l'étiquette automatiquement `symsvel.settings.definition_provider`. Sa méthode `definitions()` retourne des `SettingDefinition` (clé, libellé, groupe, type, required, secret, public, blocking, description).
