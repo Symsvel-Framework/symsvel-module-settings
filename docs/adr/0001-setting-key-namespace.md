@@ -2,7 +2,7 @@
 
 - Statut : **accepté**, 13 novembre 2026
 - Portée : module Settings et contrats de déclaration des modules consommateurs
-- Implémentation : **raccordement conteneur ajouté sur `dev`, validation CI et crash-test projet installé à réaliser**
+- Implémentation : **raccordement conteneur ajouté sur `dev`, installation `--dev` validée ; test fournisseur tiers et CI du dernier raccordement à confirmer**
 
 ## Contexte
 
@@ -41,6 +41,6 @@ Les définitions de paramètres de plusieurs modules partagent une même table e
 
 Le `SettingsBundle` enregistre un compiler pass Symfony exécuté après la résolution des tags de services. Ce pass lit exclusivement l'inventaire `backend/.symsvel/modules.json` déjà publié par `symsvel:module:sync --source=composer`. Pour chaque fournisseur tagué, il résout le chemin réel du fichier PHP de sa classe, puis l'associe à **un et un seul** répertoire de module présent dans cet inventaire. La comparaison de chemins canoniques tient compte des dépôts Composer installés par lien symbolique et ne déduit jamais le slug d'un namespace ou du nom d'une classe.
 
-La carte `service ID → slug` est injectée dans `SettingRegistry` lors de la compilation du conteneur. Les définitions sont ensuite qualifiées avec `SettingKeyQualifier` avant indexation. Un fournisseur non attribuable ou attribuable à plusieurs modules échoue explicitement lors de la compilation ; aucune attribution implicite à `application` n'est faite. L'absence d'inventaire conserve la compatibilité des tests isolés, mais **ne valide pas le fonctionnement d'un projet SymSvel installé**.
+Le pass enrichit également chaque tag fournisseur avec l'attribut `settings_provider_id`, et le registre utilise `AutowireIterator(indexAttribute: 'settings_provider_id')` pour obtenir des clés d'itération égales aux identifiants de services. La carte `service ID → slug` est injectée dans `SettingRegistry` lors de la compilation du conteneur. Les définitions sont ensuite qualifiées avec `SettingKeyQualifier` avant indexation. Un fournisseur non attribuable ou attribuable à plusieurs modules échoue explicitement lors de la compilation ; aucune attribution implicite à `application` n'est faite. L'absence d'inventaire conserve la compatibilité des tests isolés, mais **ne valide pas le fonctionnement d'un projet SymSvel installé**.
 
 Cette étape n'ajoute aucune découverte de modules aux requêtes HTTP et ne modifie ni les tables ni les migrations. Les tests du compiler pass couvrent l'association, l'absence d'inventaire, les métadonnées malformées et les fournisseurs hors module. La validation complète exige encore CI verte et crash-test avec l'inventaire réel après installation.
