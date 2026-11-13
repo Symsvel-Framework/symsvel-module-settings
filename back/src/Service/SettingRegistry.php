@@ -11,10 +11,23 @@ final class SettingRegistry
     /** @var array<string, SettingDefinition> */
     private array $definitions = [];
 
-    /** @param iterable<SettingDefinitionProviderInterface> $providers */
-    public function __construct(#[AutowireIterator('symsvel.settings.definition_provider')] iterable $providers)
-    {
-        foreach ($providers as $provider) {
+    /**
+     * @param iterable<string, SettingDefinitionProviderInterface> $providers
+     * @param array<string, string> $owners Verified service ID => module slug.
+     */
+    public function __construct(
+        #[AutowireIterator('symsvel.settings.definition_provider')] iterable $providers,
+        array $owners = [],
+    ) {
+        $qualifier = new SettingKeyQualifier();
+        foreach ($providers as $serviceId => $provider) {
+            if ($owners !== []) {
+                if (!is_string($serviceId) || !isset($owners[$serviceId])) {
+                    throw new \\LogicException('Settings provider has no verified module owner.');
+                }
+                $this->registerOwned($provider, $owners[$serviceId], $qualifier);
+                continue;
+            }
             foreach ($provider->definitions() as $definition) {
                 if (isset($this->definitions[$definition->key])) {
                     throw new \LogicException(sprintf('Setting "%s" is declared twice.', $definition->key));
