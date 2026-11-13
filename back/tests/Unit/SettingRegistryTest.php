@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use SymSvel\Module\Settings\Service\SettingDefinition;
 use SymSvel\Module\Settings\Service\SettingDefinitionProviderInterface;
 use SymSvel\Module\Settings\Service\SettingRegistry;
+use SymSvel\Module\Settings\Service\SettingKeyQualifier;
 
 final class SettingRegistryTest extends TestCase
 {
@@ -82,4 +83,44 @@ final class SettingRegistryTest extends TestCase
         $this->expectException(\LogicException::class);
         new SettingRegistry([$provider]);
     }
+    public function testRegistersShortKeyUsingVerifiedOwner(): void
+    {
+        $definition = new SettingDefinition('api_key', 'API key', secret: true);
+        $provider = new class($definition) implements SettingDefinitionProviderInterface {
+            public function __construct(private readonly SettingDefinition $definition) {}
+            public function definitions(): iterable { yield $this->definition; }
+        };
+        $registry = new SettingRegistry([]);
+        $registry->registerOwned($provider, 'brevo', new SettingKeyQualifier());
+
+        self::assertSame('api_key', $definition->key);
+        self::assertTrue($registry->get('brevo.api_key')?->secret);
+        self::assertNull($registry->get('api_key'));
+    }
+
+    public function testRejectsCollisionAfterQualification(): void
+    {
+        $provider = new class implements SettingDefinitionProviderInterface {
+            public function definitions(): iterable
+            {
+                yield new SettingDefinition('api_key', 'First');
+                yield new SettingDefinition('brevo.api_key', 'Second');
+            }
+        };
+        $registry = new SettingRegistry([]);
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('Setting "brevo.api_key" is declared twice.');
+        $registry->registerOwned($provider, 'brevo', new SettingKeyQualifier());
+    }
+
+    public function testRejectsForeignNamespaceWhenRegisteringOwnedProvider(): void
+    {
+        $provider = new class implements SettingDefinitionProviderInterface {
+            public function definitions(): iterable { yield new SettingDefinition('admins.api_key', 'Foreign'); }
+        };
+        $registry = new SettingRegistry([]);
+        $this->expectException(\InvalidArgumentException::class);
+        $registry->registerOwned($provider, 'brevo', new SettingKeyQualifier());
+    }
+
 }
