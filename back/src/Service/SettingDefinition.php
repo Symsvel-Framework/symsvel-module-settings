@@ -17,7 +17,7 @@ final readonly class SettingDefinition
         public bool $blocking = false,
         public ?string $description = null,
     ) {
-        if ($key === '' || strlen($key) > 190) {
+        if ($key === '' || $key !== trim($key) || strlen($key) > 190) {
             throw new \InvalidArgumentException('Invalid setting definition key.');
         }
         if (!in_array($type, ['string', 'boolean', 'email', 'url'], true)) {
