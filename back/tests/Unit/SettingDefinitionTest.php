@@ -58,4 +58,39 @@ final class SettingDefinitionTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         new SettingDefinition('', 'Example');
     }
+    public function testQualifiedCopyPreservesMetadataAndOriginalDeclaration(): void
+    {
+        $original = new SettingDefinition(
+            key: 'api_key',
+            label: 'API key',
+            group: 'integrations',
+            type: 'string',
+            required: true,
+            secret: true,
+            blocking: true,
+            description: 'External service token',
+        );
+
+        $qualified = $original->withKey('brevo.api_key');
+
+        self::assertNotSame($original, $qualified);
+        self::assertSame('api_key', $original->key);
+        self::assertSame('brevo.api_key', $qualified->key);
+        self::assertSame($original->label, $qualified->label);
+        self::assertSame($original->group, $qualified->group);
+        self::assertSame($original->type, $qualified->type);
+        self::assertSame($original->required, $qualified->required);
+        self::assertSame($original->secret, $qualified->secret);
+        self::assertSame($original->public, $qualified->public);
+        self::assertSame($original->blocking, $qualified->blocking);
+        self::assertSame($original->description, $qualified->description);
+    }
+
+    public function testQualifiedCopyStillValidatesKey(): void
+    {
+        $original = new SettingDefinition('api_key', 'API key');
+        $this->expectException(\InvalidArgumentException::class);
+        $original->withKey(' invalid ');
+    }
+
 }
