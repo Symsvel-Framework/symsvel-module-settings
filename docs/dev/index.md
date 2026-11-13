@@ -18,6 +18,12 @@ Un module fournit un service implémentant `SettingDefinitionProviderInterface` 
 
 `missingRequired()`, `missingBlocking()`, `missingNonBlocking()` et `isComplete()` sont calculés depuis les déclarations et la base, sans flag d'onboarding.
 
+## Onboarding dynamique
+
+`SettingOnboarding::status()` construit un état `{ complete, missing, pending }` depuis `SettingManager::missingBlocking()` et `missingNonBlocking()`. `missing` contient les clés obligatoires bloquantes absentes ; `pending` les obligatoires non bloquantes absentes. `complete` vaut `true` dès qu'aucune clé bloquante ne manque, même si des éléments restent en attente. Aucun indicateur de complétude n'est enregistré en base : les nouvelles déclarations de modules sont prises en compte au prochain calcul. La projection pure `summarize()` est couverte par des tests unitaires ; le calcul réel en base et l'intégration HTTP restent à tester en CT.
+
+L'API BO d'écriture et d'onboarding n'est **pas encore exposée** : les modules Admins/ACLs ne fournissent pas encore le contrat de contrôle d'accès opérationnel requis. Ne pas ajouter de route PATCH avant authentification et autorisation vérifiables.
+
 ## Lecture publique
 
 `GET /api/settings/public` expose uniquement les valeurs non vides dont la définition porte explicitement `public: true`. Les définitions `secret: true` sont exclues avant toute lecture, même si un fournisseur est mal configuré. La réponse est `{ "data": { "cle": "valeur" } }`. Aucune route d'écriture publique n'est prévue. Les définitions sont fournies par les modules consommateurs ; en leur absence, la réponse contient un objet vide. La route est déclarée par attribut et chargée par la recette Flex existante.
