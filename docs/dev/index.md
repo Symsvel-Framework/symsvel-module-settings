@@ -18,12 +18,18 @@ Un module fournit un service implémentant `SettingDefinitionProviderInterface` 
 
 `missingRequired()`, `missingBlocking()`, `missingNonBlocking()` et `isComplete()` sont calculés depuis les déclarations et la base, sans flag d'onboarding.
 
+## Lecture publique
+
+`GET /api/settings/public` expose uniquement les valeurs non vides dont la définition porte explicitement `public: true`. Les définitions `secret: true` sont exclues avant toute lecture, même si un fournisseur est mal configuré. La réponse est `{ "data": { "cle": "valeur" } }`. Aucune route d'écriture publique n'est prévue. Les définitions sont fournies par les modules consommateurs ; en leur absence, la réponse contient un objet vide. La route est déclarée par attribut et chargée par la recette Flex existante.
+
+Ce endpoint est public par conception : un module ne doit jamais marquer comme public une donnée personnelle ou sensible. Le comportement HTTP et les règles de sécurité du projet hôte restent à valider en crash-test.
+
 ## Secrets
 
 `SettingSecretCipher` utilise libsodium secretbox, avec une clé dérivée de `kernel.secret`. Les valeurs sont chiffrées en base. **Changer APP_SECRET sans migration/rechiffrement des secrets rend les valeurs existantes illisibles.** Ne jamais exposer les valeurs secrètes dans les réponses API, logs ou écrans. La rotation de clé et l'API BO restent hors de ce premier jalon.
 
 ## Portée et validation
 
-Cette première étape fournit uniquement le socle backend. Aucun fournisseur de paramètres applicatifs natifs, contrôleur BO, écran Svelte, transport Brevo ou règle d'onboarding bloquant n'est activé. Les modules consommateurs déclareront leurs propres clés.
+Le socle backend inclut désormais la lecture publique des paramètres explicitement exposables. Aucun fournisseur de paramètres applicatifs natifs, contrôleur BO, écran Svelte, transport Brevo ou règle d'onboarding bloquant n'est activé. Les modules consommateurs déclareront leurs propres clés.
 
 Validation encore requise : tests automatisés, CI, installation et crash-tests PostgreSQL, MySQL, MariaDB, SQLite, puis validation utilisateur. Le squelette `v0.1.0` sur `main` reste intact jusqu'à validation.
