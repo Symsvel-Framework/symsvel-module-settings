@@ -23,6 +23,7 @@ final class SettingInventorySynchronizer
     /** @return array{added: list<string>, removed: list<string>, changed: list<string>} */
     public function sync(string $backend): array
     {
+        $existed = $this->store->exists($backend);
         $previous = $this->store->read($backend);
         $desired = $this->inventory->fromRegistry($this->registry);
         $changes = $this->diff->compare($previous['modules'], $desired['modules']);
@@ -78,7 +79,7 @@ final class SettingInventorySynchronizer
             }
             if ($published) {
                 try {
-                    $this->store->restore($backend, $previous);
+                    $this->store->restore($backend, $previous, $existed);
                 } catch (\Throwable $restoreFailure) {
                     $recoveryErrors[] = 'Inventory restore failed: '.$restoreFailure->getMessage();
                 }
