@@ -1,0 +1,15 @@
+{
+    "schema": 1,
+    "name": "Settings",
+    "dependencies": {},
+    "tables": [],
+    "components": {
+        "back": "back",
+        "bo": "bo"
+    },
+    "documentation": {
+        "dev": "docs/dev",
+        "admin": "docs/admin"
+    },
+    "extensions": []
+}

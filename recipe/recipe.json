@@ -1,0 +1,30 @@
+{
+    "manifests": {
+        "symsvel-framework/module-settings": {
+            "manifest": {
+                "bundles": {
+                    "SymSvel\\Module\\Settings\\SettingsBundle": [
+                        "all"
+                    ]
+                },
+                "copy-from-recipe": {
+                    "config/": "%CONFIG_DIR%/"
+                }
+            },
+            "files": {
+                "config/routes/settings.yaml": {
+                    "contents": [
+                        "settings:",
+                        "    resource:",
+                        "        path: '@SettingsBundle/src/Controller/'",
+                        "        namespace: SymSvel\\Module\\Settings\\Controller",
+                        "    type: attribute",
+                        ""
+                    ],
+                    "executable": false
+                }
+            },
+            "ref": "REPLACE_WITH_RECIPE_COMMIT_SHA"
+        }
+    }
+}
