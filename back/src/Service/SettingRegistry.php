@@ -16,7 +16,7 @@ final class SettingRegistry
      * @param array<string, string> $owners Verified service ID => module slug.
      */
     public function __construct(
-        #[AutowireIterator('symsvel.settings.definition_provider')] iterable $providers,
+        #[AutowireIterator('symsvel.settings.definition_provider', indexAttribute: 'settings_provider_id')] iterable $providers,
         array $owners = [],
     ) {
         $qualifier = new SettingKeyQualifier();
