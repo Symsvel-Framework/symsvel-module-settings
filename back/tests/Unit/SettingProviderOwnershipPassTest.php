@@ -60,6 +60,10 @@ final class SettingProviderOwnershipPassTest extends TestCase
         $container = $this->container();
         (new SettingProviderOwnershipPass())->process($container);
         self::assertSame(
+            [['settings_provider_id' => OwnershipFixtureProvider::class]],
+            $container->getDefinition(OwnershipFixtureProvider::class)->getTag('symsvel.settings.definition_provider'),
+        );
+        self::assertSame(
             [OwnershipFixtureProvider::class => 'brevo'],
             $container->getDefinition(SettingRegistry::class)->getArgument('$owners'),
         );
