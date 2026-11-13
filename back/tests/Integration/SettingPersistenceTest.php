@@ -27,6 +27,7 @@ final class SettingPersistenceTest extends TestCase
             paths: [dirname(__DIR__, 2).'/src/Entity'],
             isDevMode: true,
         );
+        $config->enableNativeLazyObjects(true);
         $connection = DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]);
         $manager = new EntityManager($connection, $config);
         (new SchemaTool($manager))->createSchema([$manager->getClassMetadata(Setting::class)]);
