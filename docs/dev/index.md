@@ -24,6 +24,10 @@ Un module fournit un service implémentant `SettingDefinitionProviderInterface` 
 
 L'API BO d'écriture et d'onboarding n'est **pas encore exposée** : les modules Admins/ACLs ne fournissent pas encore le contrat de contrôle d'accès opérationnel requis. Ne pas ajouter de route PATCH avant authentification et autorisation vérifiables.
 
+## Projection pour le futur BO
+
+`SettingPresentation::all()` prépare les métadonnées d'affichage des paramètres (`key`, `label`, `group`, `type`, `required`, `secret`, `public`, `blocking`, `description`, `configured`, `value`). Pour une définition secrète, `value` reste toujours `null` ; seul le booléen `configured` est exposé. Les tests vérifient qu'une valeur sensible n'apparaît pas dans la sérialisation JSON. Cette projection est destinée **uniquement à un futur endpoint BO authentifié et autorisé** ; elle ne doit jamais être raccordée à l'API publique. Aucun endpoint BO n'est ouvert à ce stade.
+
 ## Lecture publique
 
 `GET /api/settings/public` expose uniquement les valeurs non vides dont la définition porte explicitement `public: true`. Les définitions `secret: true` sont exclues avant toute lecture, même si un fournisseur est mal configuré. La réponse est `{ "data": { "cle": "valeur" } }`. Aucune route d'écriture publique n'est prévue. Les définitions sont fournies par les modules consommateurs ; en leur absence, la réponse contient un objet vide. La route est déclarée par attribut et chargée par la recette Flex existante.
