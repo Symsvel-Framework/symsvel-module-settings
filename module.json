@@ -2,7 +2,9 @@
     "schema": 1,
     "name": "Settings",
     "dependencies": {},
-    "tables": [],
+    "tables": [
+        "symsvel_settings"
+    ],
     "components": {
         "back": "back",
         "bo": "bo"
