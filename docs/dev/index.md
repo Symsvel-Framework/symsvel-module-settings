@@ -20,3 +20,5 @@ Sans inventaire, le registre conserve son comportement historique pour les tests
 ## Cycle de vie des paramètres (ADR 0002)
 
 Le dictionnaire cible `backend/.symsvel/modules-params.json` est un inventaire de définitions synchronisées, sans valeurs. Le service pur `SettingInventoryDiff` compare deux états par module et produit les clés qualifiées ajoutées, supprimées ou dont les métadonnées changent. Il valide les identifiants et garantit un résultat déterministe et idempotent. **Ce comparateur n'écrit ni la BDD ni le JSON** : la synchronisation transactionnelle par Tooling, sa commande et le CT XT restent à implémenter et à valider.
+
+`SettingInventory::fromRegistry()` projette les définitions qualifiées en structure `schema: 1` / `modules`, triée par module et clé, avec les métadonnées de présentation et de validation mais sans valeur persistée. Les deux services sont enregistrés par `SettingsBundle`. La projection refuse les clés sans propriétaire valide. Le fichier n'est pas encore publié automatiquement.
