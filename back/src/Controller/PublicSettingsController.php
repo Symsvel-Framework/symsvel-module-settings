@@ -6,6 +6,7 @@ namespace SymSvel\Module\Settings\Controller;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
+use SymSvel\Module\Settings\Service\PublicSettingFilter;
 use SymSvel\Module\Settings\Service\SettingManager;
 use SymSvel\Module\Settings\Service\SettingRegistry;
 
@@ -15,21 +16,12 @@ final readonly class PublicSettingsController
     public function __construct(
         private SettingRegistry $registry,
         private SettingManager $settings,
+        private PublicSettingFilter $filter,
     ) {}
 
     public function __invoke(): JsonResponse
     {
-        $data = [];
-        foreach ($this->registry->all() as $definition) {
-            // Never retrieve secrets, even if a provider is misconfigured.
-            if (!$definition->public || $definition->secret) {
-                continue;
-            }
-            $value = $this->settings->get($definition->key);
-            if ($value !== null && trim($value) !== '') {
-                $data[$definition->key] = $value;
-            }
-        }
+        $data = $this->filter->collect($this->registry, $this->settings->get(...));
         return new JsonResponse(['data' => $data]);
     }
 }
