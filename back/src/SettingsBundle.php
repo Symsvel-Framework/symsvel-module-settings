@@ -15,6 +15,7 @@ use SymSvel\Module\Settings\Service\PublicSettingFilter;
 use SymSvel\Module\Settings\Service\SettingManager;
 use SymSvel\Module\Settings\Service\SettingInventory;
 use SymSvel\Module\Settings\Service\SettingInventoryDiff;
+use SymSvel\Module\Settings\Service\SettingInventoryStore;
 use SymSvel\Module\Settings\Service\SettingKeyQualifier;
 use SymSvel\Module\Settings\Service\SettingOnboarding;
 use SymSvel\Module\Settings\Service\SettingPresentation;
@@ -31,7 +32,7 @@ final class SettingsBundle extends AbstractBundle
 
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
     {
-        foreach ([SettingRepository::class, SettingRegistry::class, SettingKeyQualifier::class, SettingManager::class, SettingInventory::class, SettingInventoryDiff::class, SettingSecretCipher::class, SettingOnboarding::class, SettingPresentation::class, PublicSettingFilter::class, PublicSettingsController::class] as $service) {
+        foreach ([SettingRepository::class, SettingRegistry::class, SettingKeyQualifier::class, SettingManager::class, SettingInventory::class, SettingInventoryDiff::class, SettingInventoryStore::class, SettingSecretCipher::class, SettingOnboarding::class, SettingPresentation::class, PublicSettingFilter::class, PublicSettingsController::class] as $service) {
             $builder->register($service, $service)->setAutowired(true)->setAutoconfigured(true);
         }
         $builder->getDefinition(PublicSettingsController::class)->addTag('controller.service_arguments');
