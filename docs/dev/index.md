@@ -16,3 +16,7 @@ Le compiler pass `SettingProviderOwnershipPass` exploite `backend/.symsvel/modul
 
 Sans inventaire, le registre conserve son comportement historique pour les tests isolés. Les clés historiques déjà persistées sans préfixe nécessitent une migration explicite, sans conversion silencieuse. Les tests du compiler pass et du registre vérifient les contrats séparément ; le test fonctionnel d'un fournisseur tiers dans un projet installé reste nécessaire avant clôture du chantier.
 
+
+## Cycle de vie des paramètres (ADR 0002)
+
+Le dictionnaire cible `backend/.symsvel/modules-params.json` est un inventaire de définitions synchronisées, sans valeurs. Le service pur `SettingInventoryDiff` compare deux états par module et produit les clés qualifiées ajoutées, supprimées ou dont les métadonnées changent. Il valide les identifiants et garantit un résultat déterministe et idempotent. **Ce comparateur n'écrit ni la BDD ni le JSON** : la synchronisation transactionnelle par Tooling, sa commande et le CT XT restent à implémenter et à valider.
