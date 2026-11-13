@@ -151,4 +151,46 @@ final class SettingManagerPersistenceTest extends TestCase
             $entityManager->getConnection()->close();
         }
     }
+    public function testRepeatedWritesBeforeFlushReuseSingleEntity(): void
+    {
+        [$entityManager, $settings, $repository] = $this->services();
+        try {
+            $settings->set('application.name', 'First');
+            $settings->set('application.name', 'Second');
+            self::assertSame('Second', $settings->get('application.name'));
+            $settings->flush();
+            $entityManager->clear();
+
+            self::assertCount(1, $repository->findAll());
+            self::assertSame('Second', $settings->get('application.name'));
+
+            $settings->set('application.name', 'Third');
+            $settings->flush();
+            $entityManager->clear();
+
+            self::assertCount(1, $repository->findAll());
+            self::assertSame('Third', $settings->get('application.name'));
+        } finally {
+            $entityManager->getConnection()->close();
+        }
+    }
+
+    public function testRepeatedSecretWritesBeforeFlushStoreOnlyLatestEncryptedValue(): void
+    {
+        [$entityManager, $settings, $repository] = $this->services();
+        try {
+            $settings->set('brevo.api_key', 'old-token');
+            $settings->set('brevo.api_key', 'new-token');
+            self::assertSame('new-token', $settings->get('brevo.api_key'));
+            $settings->flush();
+            $entityManager->clear();
+
+            self::assertCount(1, $repository->findAll());
+            self::assertSame('new-token', $settings->get('brevo.api_key'));
+            self::assertNotSame('new-token', $repository->findOneBy(['key' => 'brevo.api_key'])?->getValue());
+        } finally {
+            $entityManager->getConnection()->close();
+        }
+    }
+
 }
