@@ -32,3 +32,5 @@ La commande Symfony interne `symsvel:settings:sync` construit les définitions q
 La synchronisation tente de restaurer le dictionnaire antérieur si le commit BDD échoue après publication, y compris en supprimant le fichier lorsqu'il n'existait pas. Une restauration incomplète est signalée explicitement. Ce mécanisme n'est pas une transaction atomique distribuée entre filesystem et SGBD : les interruptions brutales et les garanties de reprise du lanceur Composer restent à tester.
 
 Les tests du stockage couvrent aussi la restauration d'un dictionnaire antérieur après publication et le refus d'un inventaire de version de schéma inconnue. Ces tests unitaires ne remplacent pas un test de transaction Composer avec SGBD réel.
+
+Un test de régression du différentiel simule la suppression du module Mails puis sa réinstallation : seules ses trois clés sont retirées puis réintroduites, les clés d'un autre module restent intactes et une nouvelle synchronisation identique ne produit aucun changement. Il s'agit d'un test du différentiel, non d'une désinstallation Composer réelle.
