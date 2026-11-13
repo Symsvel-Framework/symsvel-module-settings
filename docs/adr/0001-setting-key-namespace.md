@@ -2,7 +2,7 @@
 
 - Statut : **accepté**, 13 novembre 2026
 - Portée : module Settings et contrats de déclaration des modules consommateurs
-- Implémentation : **à réaliser après vérification du mécanisme existant d'identification des modules**
+- Implémentation : **raccordement conteneur ajouté sur `dev`, validation CI et crash-test projet installé à réaliser**
 
 ## Contexte
 
@@ -36,3 +36,11 @@ Les définitions de paramètres de plusieurs modules partagent une même table e
 **Conséquence :** le préfixage ne peut pas être ajouté correctement par une simple manipulation des chaînes dans `SettingRegistry`. Il faut d'abord transmettre l'association *fournisseur → slug Composer vérifié* au conteneur Symfony à partir des métadonnées déjà établies. Ne pas déduire cette association du namespace ou du nom de classe, et ne pas demander aux fournisseurs de répéter manuellement le slug. Ne pas ouvrir de scan de fichiers au runtime.
 
 **Séquence de réalisation :** identifier le point existant où les modules installés sont reliés à leurs services Symfony ; transmettre cette provenance au registre ; qualifier les clés avant l'indexation ; adapter les tests et la documentation ; valider sur projet installé. Tant que la provenance n'est pas disponible, conserver le comportement actuel et le rejet des collisions, sans prétendre que la qualification automatique fonctionne.
+
+## Implémentation du raccordement (13 novembre 2026)
+
+Le `SettingsBundle` enregistre un compiler pass Symfony exécuté après la résolution des tags de services. Ce pass lit exclusivement l'inventaire `backend/.symsvel/modules.json` déjà publié par `symsvel:module:sync --source=composer`. Pour chaque fournisseur tagué, il résout le chemin réel du fichier PHP de sa classe, puis l'associe à **un et un seul** répertoire de module présent dans cet inventaire. La comparaison de chemins canoniques tient compte des dépôts Composer installés par lien symbolique et ne déduit jamais le slug d'un namespace ou du nom d'une classe.
+
+La carte `service ID → slug` est injectée dans `SettingRegistry` lors de la compilation du conteneur. Les définitions sont ensuite qualifiées avec `SettingKeyQualifier` avant indexation. Un fournisseur non attribuable ou attribuable à plusieurs modules échoue explicitement lors de la compilation ; aucune attribution implicite à `application` n'est faite. L'absence d'inventaire conserve la compatibilité des tests isolés, mais **ne valide pas le fonctionnement d'un projet SymSvel installé**.
+
+Cette étape n'ajoute aucune découverte de modules aux requêtes HTTP et ne modifie ni les tables ni les migrations. Les tests du compiler pass couvrent l'association, l'absence d'inventaire, les métadonnées malformées et les fournisseurs hors module. La validation complète exige encore CI verte et crash-test avec l'inventaire réel après installation.
