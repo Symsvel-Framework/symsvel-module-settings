@@ -70,7 +70,7 @@ final readonly class SettingManager
         if ($value !== null && !is_scalar($value)) {
             throw new \InvalidArgumentException('Invalid setting value.');
         }
-        $value = $value === null ? '' : trim((string) $value);
+        $value = is_bool($value) ? ($value ? '1' : '0') : ($value === null ? '' : trim((string) $value));
         if ($definition->required && $value === '') {
             throw new \InvalidArgumentException(sprintf('%s is required.', $definition->label));
         }
