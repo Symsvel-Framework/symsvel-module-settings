@@ -38,4 +38,29 @@ final class SettingInventoryDiffTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         (new SettingInventoryDiff())->compare([], ['mails' => ['../unsafe' => []]]);
     }
+    public function testModuleUninstallAndReinstallAreScopedAndIdempotent(): void
+    {
+        $diff = new SettingInventoryDiff();
+        $installed = [
+            'mails' => [
+                'sender_email' => ['type' => 'email'],
+                'sender_name' => ['type' => 'string'],
+                'transport' => ['type' => 'string'],
+            ],
+            'settings' => ['site_name' => ['type' => 'string']],
+        ];
+        $withoutMails = ['settings' => $installed['settings']];
+        self::assertSame([
+            'added' => [],
+            'removed' => ['mails.sender_email', 'mails.sender_name', 'mails.transport'],
+            'changed' => [],
+        ], $diff->compare($installed, $withoutMails));
+        self::assertSame([
+            'added' => ['mails.sender_email', 'mails.sender_name', 'mails.transport'],
+            'removed' => [],
+            'changed' => [],
+        ], $diff->compare($withoutMails, $installed));
+        self::assertSame(['added' => [], 'removed' => [], 'changed' => []], $diff->compare($installed, $installed));
+    }
+
 }
