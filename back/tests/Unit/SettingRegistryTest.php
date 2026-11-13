@@ -123,4 +123,27 @@ final class SettingRegistryTest extends TestCase
         $registry->registerOwned($provider, 'brevo', new SettingKeyQualifier());
     }
 
+    public function testConstructorQualifiesProvidersUsingServiceIdOwnershipMap(): void
+    {
+        $provider = new class implements SettingDefinitionProviderInterface {
+            public function definitions(): iterable
+            {
+                yield new SettingDefinition('api_key', 'API key', secret: true);
+            }
+        };
+        $registry = new SettingRegistry(['provider.brevo' => $provider], ['provider.brevo' => 'brevo']);
+        self::assertTrue($registry->get('brevo.api_key')?->secret);
+        self::assertNull($registry->get('api_key'));
+    }
+
+    public function testConstructorRejectsUnmappedProviderWhenOwnershipIsEnabled(): void
+    {
+        $provider = new class implements SettingDefinitionProviderInterface {
+            public function definitions(): iterable { yield new SettingDefinition('api_key', 'API key'); }
+        };
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('no verified module owner');
+        new SettingRegistry(['unknown.provider' => $provider], ['other.provider' => 'brevo']);
+    }
+
 }
