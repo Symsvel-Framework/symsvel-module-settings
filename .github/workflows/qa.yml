@@ -13,4 +13,6 @@ jobs:
           php -v
           php -r 'if (PHP_VERSION_ID < 80400 || PHP_VERSION_ID >= 80500) { exit(1); }'
       - run: composer install --no-interaction --prefer-dist
+      - name: Lint PHP sources and tests
+        run: find back/src back/tests -type f -name '*.php' -print0 | xargs -0 -r -n 1 php -l
       - run: composer qa
