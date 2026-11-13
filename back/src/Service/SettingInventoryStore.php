@@ -64,6 +64,31 @@ final class SettingInventoryStore
         return $path;
     }
 
+    /** Restore the previous published state, including absence of the file. */
+    public function restore(string $backend, array $previous, bool $existed = true): void
+    {
+        if ($existed) {
+            $this->write($backend, $previous);
+            return;
+        }
+        $path = $this->path($backend);
+        if (is_link($path) || (file_exists($path) && !is_file($path))) {
+            throw new \RuntimeException('Invalid parameter inventory destination.');
+        }
+        if (is_file($path) && !unlink($path)) {
+            throw new \RuntimeException('Unable to remove newly created parameter inventory.');
+        }
+    }
+
+    public function exists(string $backend): bool
+    {
+        $path = $this->path($backend);
+        if (is_link($path)) {
+            throw new \RuntimeException('Symbolic parameter inventory is forbidden.');
+        }
+        return is_file($path);
+    }
+
     private function path(string $backend): string
     {
         $backend = realpath($backend);
