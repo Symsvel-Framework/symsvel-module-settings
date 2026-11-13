@@ -54,4 +54,23 @@ final class SettingKeyQualifierTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         (new SettingKeyQualifier())->qualify('brevo', str_repeat('a', 185));
     }
+    public function testAcceptsKeyAtStorageLimit(): void
+    {
+        $key = str_repeat('a', 184);
+        self::assertSame('brevo.'.$key, (new SettingKeyQualifier())->qualify('brevo', $key));
+        self::assertSame(190, strlen('brevo.'.$key));
+    }
+
+    public function testRejectsForeignPrefixEvenWhenItStartsWithOwnerName(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        (new SettingKeyQualifier())->qualify('brevo', 'brevo-extra.api_key');
+    }
+
+    public function testRejectsInvalidParameterCharacters(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        (new SettingKeyQualifier())->qualify('brevo', 'api key');
+    }
+
 }
