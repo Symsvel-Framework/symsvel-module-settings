@@ -46,7 +46,7 @@ final readonly class SettingManager
         return array_values(array_filter(
             $this->registry->all(),
             static fn (SettingDefinition $definition): bool => $definition->required
-                && trim((string) ($stored[$definition->key]?->getValue() ?? '')) === '',
+                && trim((string) (($stored[$definition->key] ?? null)?->getValue() ?? '')) === '',
         ));
     }
 
