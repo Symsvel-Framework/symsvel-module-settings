@@ -12,6 +12,8 @@ L'entité `SymSvel\Module\Settings\Entity\Setting` possède une clé unique (`se
 
 La décision [ADR 0001](../adr/0001-setting-key-namespace.md) impose la clé canonique `module.parametre`. SymSvel devra préfixer automatiquement les clés courtes avec l'identifiant technique stable du module propriétaire, conserver les clés déjà correctement qualifiées et refuser les préfixes d'un autre module. Le stockage reste sur `setting_key` unique, sans migration. **Cette convention est actée mais sa qualification automatique n'est pas encore implémentée** : le registre actuel reçoit encore directement les clés déclarées. L'association entre fournisseurs et identifiants de modules sera raccordée au mécanisme existant après vérification des ADR et du code de chargement.
 
+`SettingKeyQualifier::qualify($module, $key)` fournit désormais la transformation pure, à partir d'un slug de module **déjà vérifié** : ajout du préfixe aux clés courtes, conservation des clés qualifiées appartenant au module, refus des préfixes étrangers, des noms invalides et des clés dépassant 190 caractères. Des tests unitaires couvrent ces cas. **Le raccordement au conteneur et au registre n'est pas encore réalisé** : les fournisseurs existants continuent à déclarer leurs clés selon le contrat actuel jusqu'à la transmission fiable de leur provenance. Aucun scan de module n'est effectué par ce service.
+
 ## Déclaration des paramètres
 
 Un module fournit un service implémentant `SettingDefinitionProviderInterface` ; Symfony l'étiquette automatiquement `symsvel.settings.definition_provider`. Sa méthode `definitions()` retourne des `SettingDefinition` (clé, libellé, groupe, type, required, secret, public, blocking, description).
