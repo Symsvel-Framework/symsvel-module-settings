@@ -25,6 +25,51 @@ final class SettingRegistryTest extends TestCase
         self::assertNull($registry->get('unknown'));
     }
 
+    public function testCollectsMultipleProvidersInDeclarationOrder(): void
+    {
+        $first = new class implements SettingDefinitionProviderInterface {
+            public function definitions(): iterable
+            {
+                yield new SettingDefinition('application.name', 'Name', required: true, blocking: true);
+                yield new SettingDefinition('application.url', 'URL', type: 'url');
+            }
+        };
+        $second = new class implements SettingDefinitionProviderInterface {
+            public function definitions(): iterable
+            {
+                yield new SettingDefinition('mail.sender', 'Sender', type: 'email');
+            }
+        };
+
+        $registry = new SettingRegistry([$first, $second]);
+        self::assertSame(
+            ['application.name', 'application.url', 'mail.sender'],
+            array_map(static fn (SettingDefinition $definition): string => $definition->key, $registry->all()),
+        );
+        self::assertTrue($registry->get('application.name')?->blocking);
+        self::assertSame('email', $registry->get('mail.sender')?->type);
+    }
+
+    public function testRejectsDuplicateKeysAcrossProviders(): void
+    {
+        $first = new class implements SettingDefinitionProviderInterface {
+            public function definitions(): iterable
+            {
+                yield new SettingDefinition('application.name', 'First');
+            }
+        };
+        $second = new class implements SettingDefinitionProviderInterface {
+            public function definitions(): iterable
+            {
+                yield new SettingDefinition('application.name', 'Second');
+            }
+        };
+
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('Setting "application.name" is declared twice.');
+        new SettingRegistry([$first, $second]);
+    }
+
     public function testRejectsDuplicateKeys(): void
     {
         $provider = new class implements SettingDefinitionProviderInterface {
