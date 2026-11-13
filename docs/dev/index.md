@@ -56,6 +56,10 @@ Le test unitaire du contrôleur inspecte les arguments de l'attribut PHP `#[Rout
 
 `SettingPersistenceTest` exerce l'entité `Setting` avec un vrai `EntityManager` Doctrine et une base SQLite en mémoire, créée puis isolée pour chaque test. Il vérifie insertion, relecture après `clear()`, mise à jour nullable et contrainte d'unicité de `setting_key`. Le test exige `pdo_sqlite` ; si l'extension est absente, PHPUnit signale explicitement un test ignoré, ce qui **ne vaut pas validation**. `symfony/cache` est déclaré en dépendance de développement pour la configuration de métadonnées Doctrine. Le `EntityManager` autonome du test active explicitement les lazy objects natifs de PHP 8.4 via `enableNativeLazyObjects(true)` ; cela évite de dépendre de Symfony LazyGhost (`symfony/var-exporter`) pour cette configuration de test. Ce test ne valide ni le compilateur de migrations Tooling ni les SGBD PostgreSQL, MySQL et MariaDB : leurs crash-tests restent nécessaires.
 
+## Garde-fou CI : syntaxe PHP
+
+Le workflow QA exécute désormais `php -l` sur chaque fichier PHP de `back/src` et `back/tests` **avant** PHPUnit. Une erreur de syntaxe bloque immédiatement le job et ne se retrouve plus dispersée en erreurs de chargement dans les tests. Ce contrôle syntaxique complète les tests mais ne remplace pas les validations fonctionnelles et crash-tests.
+
 ## Portée et validation
 
 Le socle backend inclut désormais la lecture publique des paramètres explicitement exposables. Aucun fournisseur de paramètres applicatifs natifs, contrôleur BO, écran Svelte, transport Brevo ou règle d'onboarding bloquant n'est activé. Les modules consommateurs déclareront leurs propres clés.
