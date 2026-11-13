@@ -47,4 +47,21 @@ final class SettingInventoryStoreTest extends TestCase
             rmdir($backend);
         }
     }
+    public function testRestoreRemovesInventoryCreatedDuringFailedFirstSync(): void
+    {
+        $backend = sys_get_temp_dir().'/symsvel-settings-inventory-'.bin2hex(random_bytes(8));
+        mkdir($backend);
+        try {
+            $store = new SettingInventoryStore();
+            self::assertFalse($store->exists($backend));
+            $store->write($backend, ['schema' => 1, 'modules' => ['mails' => ['transport' => ['type' => 'string']]]]);
+            $store->restore($backend, ['schema' => 1, 'modules' => []], false);
+            self::assertFalse($store->exists($backend));
+        } finally {
+            @unlink($backend.'/.symsvel/modules-params.json');
+            @rmdir($backend.'/.symsvel');
+            @rmdir($backend);
+        }
+    }
+
 }
