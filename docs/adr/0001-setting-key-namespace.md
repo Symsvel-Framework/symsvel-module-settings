@@ -25,3 +25,14 @@ Les définitions de paramètres de plusieurs modules partagent une même table e
 - Les clés historiques non qualifiées nécessiteront une stratégie explicite de compatibilité ou de migration avant activation ; aucune conversion silencieuse de données existantes.
 - Tests attendus : qualification automatique, conservation d'une clé qualifiée valide, rejet d'un préfixe étranger, collisions entre fournisseurs après qualification, cohérence avec le chargement réel des modules.
 - Cette ADR acte la **décision architecturale** ; elle ne prétend pas que la qualification automatique est déjà implémentée ou validée en CI.
+
+## Vérification de l'architecture existante (13 novembre 2026)
+
+- `symsvel-tooling/src/Module/ComposerModuleRegistry.php` récupère déjà le slug stable depuis `symsvel-framework/module-<slug>` dans les métadonnées Composer, valide le nom de `module.json` et fournit une entrée indexée par slug.
+- `symsvel-tooling/src/Module/ModuleManifest.php` vérifie le manifeste, dont `name`, mais ne définit pas de champ `id` indépendant.
+- `symsvel-back/src/Kernel.php` repose sur `MicroKernelTrait` ; `config/services.yaml` n'injecte aucune identité de module dans les services.
+- `SettingsBundle` enregistre `SettingRegistry` ; son `#[AutowireIterator('symsvel.settings.definition_provider')]` fournit les instances des fournisseurs, pas leur slug propriétaire.
+
+**Conséquence :** le préfixage ne peut pas être ajouté correctement par une simple manipulation des chaînes dans `SettingRegistry`. Il faut d'abord transmettre l'association *fournisseur → slug Composer vérifié* au conteneur Symfony à partir des métadonnées déjà établies. Ne pas déduire cette association du namespace ou du nom de classe, et ne pas demander aux fournisseurs de répéter manuellement le slug. Ne pas ouvrir de scan de fichiers au runtime.
+
+**Séquence de réalisation :** identifier le point existant où les modules installés sont reliés à leurs services Symfony ; transmettre cette provenance au registre ; qualifier les clés avant l'indexation ; adapter les tests et la documentation ; valider sur projet installé. Tant que la provenance n'est pas disponible, conserver le comportement actuel et le rejet des collisions, sans prétendre que la qualification automatique fonctionne.
