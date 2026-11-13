@@ -8,8 +8,11 @@ use Doctrine\ORM\EntityManagerInterface;
 use SymSvel\Module\Settings\Entity\Setting;
 use SymSvel\Module\Settings\Repository\SettingRepository;
 
-final readonly class SettingManager
+final class SettingManager
 {
+    /** @var array<string, Setting> New entities awaiting their first flush. */
+    private array $pending = [];
+
     public function __construct(
         private SettingRegistry $registry,
         private SettingRepository $repository,
@@ -23,7 +26,7 @@ final readonly class SettingManager
         if ($definition === null) {
             throw new \InvalidArgumentException(sprintf('Unknown setting "%s".', $key));
         }
-        $value = $this->repository->findOneBy(['key' => $key])?->getValue();
+        $value = ($this->pending[$key] ?? $this->repository->findOneBy(['key' => $key]))?->getValue();
         return $value !== null && $definition->secret ? $this->cipher->decrypt($value) : $value;
     }
 
@@ -34,7 +37,11 @@ final readonly class SettingManager
             throw new \InvalidArgumentException(sprintf('Unknown setting "%s".', $key));
         }
         $normalized = $this->normalize($definition, $value);
-        $setting = $this->repository->findOneBy(['key' => $key]) ?? new Setting($key);
+        $setting = $this->pending[$key] ?? $this->repository->findOneBy(['key' => $key]);
+        if ($setting === null) {
+            $setting = new Setting($key);
+            $this->pending[$key] = $setting;
+        }
         $setting->setValue($normalized !== null && $definition->secret ? $this->cipher->encrypt($normalized) : $normalized);
         $this->entityManager->persist($setting);
     }
@@ -63,7 +70,11 @@ final readonly class SettingManager
     }
 
     public function isComplete(): bool { return $this->missingBlocking() === []; }
-    public function flush(): void { $this->entityManager->flush(); }
+    public function flush(): void
+    {
+        $this->entityManager->flush();
+        $this->pending = [];
+    }
 
     private function normalize(SettingDefinition $definition, mixed $value): ?string
     {
