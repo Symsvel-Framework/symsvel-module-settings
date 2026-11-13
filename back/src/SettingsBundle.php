@@ -12,6 +12,7 @@ use SymSvel\Module\Settings\Repository\SettingRepository;
 use SymSvel\Module\Settings\Service\PublicSettingFilter;
 use SymSvel\Module\Settings\Service\SettingManager;
 use SymSvel\Module\Settings\Service\SettingOnboarding;
+use SymSvel\Module\Settings\Service\SettingPresentation;
 use SymSvel\Module\Settings\Service\SettingRegistry;
 use SymSvel\Module\Settings\Service\SettingSecretCipher;
 
@@ -19,7 +20,7 @@ final class SettingsBundle extends AbstractBundle
 {
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
     {
-        foreach ([SettingRepository::class, SettingRegistry::class, SettingManager::class, SettingSecretCipher::class, SettingOnboarding::class, PublicSettingFilter::class, PublicSettingsController::class] as $service) {
+        foreach ([SettingRepository::class, SettingRegistry::class, SettingManager::class, SettingSecretCipher::class, SettingOnboarding::class, SettingPresentation::class, PublicSettingFilter::class, PublicSettingsController::class] as $service) {
             $builder->register($service, $service)->setAutowired(true)->setAutoconfigured(true);
         }
         $builder->getDefinition(PublicSettingsController::class)->addTag('controller.service_arguments');
