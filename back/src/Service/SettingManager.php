@@ -74,7 +74,7 @@ final readonly class SettingManager
         if ($definition->required && $value === '') {
             throw new \InvalidArgumentException(sprintf('%s is required.', $definition->label));
         }
-        if ($definition->type === 'boolean' && !in_array($value, ['0', '1'], true)) {
+        if ($definition->type === 'boolean' && $value !== '' && !in_array($value, ['0', '1'], true)) {
             throw new \InvalidArgumentException('Boolean settings accept only 0 or 1.');
         }
         if ($definition->type === 'email' && $value !== '' && filter_var($value, FILTER_VALIDATE_EMAIL) === false) {
