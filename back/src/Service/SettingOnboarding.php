@@ -16,9 +16,16 @@ final readonly class SettingOnboarding
     /** @return array{complete: bool, missing: list<string>, pending: list<string>} */
     public function status(): array
     {
-        $blocking = $this->settings->missingBlocking();
-        $nonBlocking = $this->settings->missingNonBlocking();
+        return self::summarize($this->settings->missingBlocking(), $this->settings->missingNonBlocking());
+    }
 
+    /**
+     * @param list<SettingDefinition> $blocking
+     * @param list<SettingDefinition> $nonBlocking
+     * @return array{complete: bool, missing: list<string>, pending: list<string>}
+     */
+    public static function summarize(array $blocking, array $nonBlocking): array
+    {
         return [
             'complete' => $blocking === [],
             'missing' => array_map(static fn (SettingDefinition $definition): string => $definition->key, $blocking),
