@@ -28,6 +28,20 @@ final class SettingDefinitionTest extends TestCase
         new SettingDefinition('example.key', 'Example', secret: true, public: true);
     }
 
+    public function testRejectsBlockingSettingThatIsNotRequired(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Blocking settings must be required.');
+        new SettingDefinition('application.name', 'Name', blocking: true);
+    }
+
+    public function testAcceptsRequiredBlockingSetting(): void
+    {
+        $definition = new SettingDefinition('application.name', 'Name', required: true, blocking: true);
+        self::assertTrue($definition->required);
+        self::assertTrue($definition->blocking);
+    }
+
     public function testRejectsEmptyKey(): void
     {
         $this->expectException(\InvalidArgumentException::class);
