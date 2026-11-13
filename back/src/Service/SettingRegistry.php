@@ -38,7 +38,7 @@ final class SettingRegistry
         foreach ($provider->definitions() as $definition) {
             $qualified = $definition->withKey($qualifier->qualify($module, $definition->key));
             if (isset($this->definitions[$qualified->key])) {
-                throw new \\LogicException(sprintf('Setting "%s" is declared twice.', $qualified->key));
+                throw new \LogicException(sprintf('Setting "%s" is declared twice.', $qualified->key));
             }
             $this->definitions[$qualified->key] = $qualified;
         }
