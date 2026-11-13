@@ -23,7 +23,7 @@ final class SettingRegistry
         foreach ($providers as $serviceId => $provider) {
             if ($owners !== []) {
                 if (!is_string($serviceId) || !isset($owners[$serviceId])) {
-                    throw new \\LogicException('Settings provider has no verified module owner.');
+                    throw new \LogicException('Settings provider has no verified module owner.');
                 }
                 $this->registerOwned($provider, $owners[$serviceId], $qualifier);
                 continue;
