@@ -74,6 +74,12 @@ final class SettingProviderOwnershipPass implements CompilerPassInterface
             if (count($matches) !== 1) {
                 throw new \LogicException(sprintf('Settings provider "%s" must belong to exactly one verified module.', $id));
             }
+            // The tagged iterator must expose service IDs, not numeric positions.
+            // Preserve existing tag attributes while adding the explicit index.
+            $definition->clearTag('symsvel.settings.definition_provider');
+            foreach ($tags as $attributes) {
+                $definition->addTag('symsvel.settings.definition_provider', [...$attributes, 'settings_provider_id' => $id]);
+            }
             $owners[$id] = $matches[0];
         }
 
