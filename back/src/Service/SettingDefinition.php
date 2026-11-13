@@ -23,6 +23,9 @@ final readonly class SettingDefinition
         if (!in_array($type, ['string', 'boolean', 'email', 'url'], true)) {
             throw new \InvalidArgumentException('Unsupported setting type.');
         }
+        if ($blocking && !$required) {
+            throw new \InvalidArgumentException('Blocking settings must be required.');
+        }
         if ($secret && $public) {
             throw new \InvalidArgumentException('Secret settings cannot be public.');
         }
