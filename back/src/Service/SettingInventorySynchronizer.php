@@ -48,6 +48,7 @@ final class SettingInventorySynchronizer
             }
         }
         $connection = $this->entityManager->getConnection();
+        $published = false;
         $connection->beginTransaction();
         try {
             foreach ($desiredKeys as $key => $_) {
@@ -64,9 +65,27 @@ final class SettingInventorySynchronizer
             // Publish before commit so a failed write can roll back database changes.
             // The enclosing Composer transaction provides recovery for post-publication failures.
             $this->store->write($backend, $desired);
+            $published = true;
             $connection->commit();
         } catch (\Throwable $failure) {
-            $connection->rollBack();
+            $recoveryErrors = [];
+            if ($connection->isTransactionActive()) {
+                try {
+                    $connection->rollBack();
+                } catch (\Throwable $rollbackFailure) {
+                    $recoveryErrors[] = 'Database rollback failed: '.$rollbackFailure->getMessage();
+                }
+            }
+            if ($published) {
+                try {
+                    $this->store->restore($backend, $previous);
+                } catch (\Throwable $restoreFailure) {
+                    $recoveryErrors[] = 'Inventory restore failed: '.$restoreFailure->getMessage();
+                }
+            }
+            if ($recoveryErrors !== []) {
+                throw new \RuntimeException('Settings synchronization recovery incomplete: '.implode('; ', $recoveryErrors), 0, $failure);
+            }
             throw $failure;
         }
         return $changes;
