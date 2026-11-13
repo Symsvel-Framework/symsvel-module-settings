@@ -15,8 +15,8 @@ final class PublicSettingsControllerTest extends TestCase
     {
         $routes = (new ReflectionClass(PublicSettingsController::class))->getAttributes(Route::class);
         self::assertCount(1, $routes);
-        $route = $routes[0]->newInstance();
-        self::assertSame('/api/settings/public', $route->getPath());
-        self::assertSame(['GET'], $route->getMethods());
+        $arguments = $routes[0]->getArguments();
+        self::assertSame('/api/settings/public', $arguments[0]);
+        self::assertSame(['GET'], $arguments['methods']);
     }
 }
