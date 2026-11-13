@@ -6,7 +6,7 @@ Module natif de stockage de paramètres applicatifs en base de données. Adaptat
 
 L'entité `SymSvel\Module\Settings\Entity\Setting` possède une clé unique (`setting_key`, 190 caractères) et une valeur texte nullable. La table `symsvel_settings` appartient exclusivement à ce module, conformément à `module.json`.
 
-`Migration/Version20200101000000.php` utilise Doctrine Schema (aucun SQL spécifique MySQL). La compilation, l'ordonnancement et l'exécution relèvent de SymSvel Tooling. Une migration source déjà publiée ne doit pas être réécrite.
+`Migration/Version20200101000400.php` utilise Doctrine Schema (aucun SQL spécifique MySQL). La compilation, l'ordonnancement et l'exécution relèvent de SymSvel Tooling. La version source Settings a été corrigée avant validation de son premier CT : l'ancien nom `Version20200101000000.php` entrait en collision avec la migration native Admins. Le nouveau nom `Version20200101000400.php` est unique parmi les migrations natives vérifiées (Admins, Roles, ACLs, Users, Settings). Une fois une migration intégrée à un projet, sa version et son contenu deviennent immuables ; ne pas renommer une source déjà appliquée.
 
 ## Convention architecturale des clés (ADR acceptée)
 
