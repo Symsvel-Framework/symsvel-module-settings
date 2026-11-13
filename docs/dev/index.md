@@ -14,6 +14,8 @@ La décision [ADR 0001](../adr/0001-setting-key-namespace.md) impose la clé can
 
 `SettingKeyQualifier::qualify($module, $key)` fournit désormais la transformation pure, à partir d'un slug de module **déjà vérifié** : ajout du préfixe aux clés courtes, conservation des clés qualifiées appartenant au module, refus des préfixes étrangers, des noms invalides et des clés dépassant 190 caractères. Des tests unitaires couvrent ces cas. **Le raccordement au conteneur et au registre n'est pas encore réalisé** : les fournisseurs existants continuent à déclarer leurs clés selon le contrat actuel jusqu'à la transmission fiable de leur provenance. Aucun scan de module n'est effectué par ce service.
 
+`SettingDefinition::withKey()` permet maintenant de créer une **copie immuable** de la définition avec sa clé qualifiée, en conservant toutes ses métadonnées et les validations du constructeur. Le fournisseur original n'est jamais modifié ; des tests vérifient la copie, les métadonnées et le rejet d'une clé invalide. Le raccordement fournisseur → propriétaire reste à réaliser.
+
 ## Déclaration des paramètres
 
 Un module fournit un service implémentant `SettingDefinitionProviderInterface` ; Symfony l'étiquette automatiquement `symsvel.settings.definition_provider`. Sa méthode `definitions()` retourne des `SettingDefinition` (clé, libellé, groupe, type, required, secret, public, blocking, description).
