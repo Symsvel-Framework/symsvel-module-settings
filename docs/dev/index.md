@@ -22,6 +22,8 @@ Un module fournit un service implémentant `SettingDefinitionProviderInterface` 
 
 `GET /api/settings/public` expose uniquement les valeurs non vides dont la définition porte explicitement `public: true`. Les définitions `secret: true` sont exclues avant toute lecture, même si un fournisseur est mal configuré. La réponse est `{ "data": { "cle": "valeur" } }`. Aucune route d'écriture publique n'est prévue. Les définitions sont fournies par les modules consommateurs ; en leur absence, la réponse contient un objet vide. La route est déclarée par attribut et chargée par la recette Flex existante.
 
+Le filtrage est isolé dans `PublicSettingFilter` et testé avec un lecteur espion : seules les clés publiques sont lues ; les clés privées et secrètes ne sont jamais consultées. Les valeurs `null`, vides ou composées uniquement d'espaces sont exclues. Le test unitaire couvre ce contrat de confidentialité, mais ne remplace pas un test HTTP dans un projet installé.
+
 Ce endpoint est public par conception : un module ne doit jamais marquer comme public une donnée personnelle ou sensible. Le comportement HTTP et les règles de sécurité du projet hôte restent à valider en crash-test.
 
 ### Test de routage
