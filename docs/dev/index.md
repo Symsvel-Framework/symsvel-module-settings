@@ -12,7 +12,7 @@ L'entité `SymSvel\Module\Settings\Entity\Setting` possède une clé unique (`se
 
 Un module fournit un service implémentant `SettingDefinitionProviderInterface` ; Symfony l'étiquette automatiquement `symsvel.settings.definition_provider`. Sa méthode `definitions()` retourne des `SettingDefinition` (clé, libellé, groupe, type, required, secret, public, blocking, description).
 
-`SettingRegistry` rassemble ces déclarations et refuse les clés dupliquées. Les types supportés sont `string`, `boolean` (valeurs `0` et `1`), `email` et `url`. Un paramètre ne peut pas être simultanément `secret` et `public`.
+`SettingRegistry` rassemble ces déclarations et refuse les clés dupliquées. Les types supportés sont `string`, `boolean` (valeurs `0` et `1`), `email` et `url`. Un paramètre ne peut pas être simultanément `secret` et `public`. Une définition `blocking: true` doit aussi être `required: true` : une configuration facultative ne peut pas bloquer l'onboarding. La construction de la définition refuse cette incohérence ; des tests unitaires couvrent les deux cas.
 
 `SettingManager::get()` retourne la valeur déchiffrée si nécessaire ; `set()` valide, normalise et prépare l'enregistrement ; `flush()` valide la transaction Doctrine. Les clés non déclarées sont refusées en lecture et écriture.
 
