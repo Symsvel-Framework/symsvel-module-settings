@@ -20,7 +20,7 @@ final class SettingsBundleTest extends TestCase
     {
         $builder = new ContainerBuilder();
         $bundle = new SettingsBundle();
-        $configurator = $this->createMock(ContainerConfigurator::class);
+        $configurator = (new \ReflectionClass(ContainerConfigurator::class))->newInstanceWithoutConstructor();
 
         $bundle->loadExtension([], $configurator, $builder);
 
