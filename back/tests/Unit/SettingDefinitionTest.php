@@ -42,6 +42,17 @@ final class SettingDefinitionTest extends TestCase
         self::assertTrue($definition->blocking);
     }
 
+    public function testRejectsKeyWithLeadingOrTrailingWhitespace(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        new SettingDefinition(' application.name ', 'Name');
+    }
+
+    public function testAcceptsCanonicalKey(): void
+    {
+        self::assertSame('application.name', (new SettingDefinition('application.name', 'Name'))->key);
+    }
+
     public function testRejectsEmptyKey(): void
     {
         $this->expectException(\InvalidArgumentException::class);
