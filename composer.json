@@ -25,7 +25,7 @@
         "symfony/cache": "^8.1"
     },
     "scripts": {
-        "test": "phpunit -c back/phpunit.xml.dist",
+        "test": "phpunit -c back/phpunit.xml.dist --display-skipped",
         "qa": [
             "@test"
         ]
