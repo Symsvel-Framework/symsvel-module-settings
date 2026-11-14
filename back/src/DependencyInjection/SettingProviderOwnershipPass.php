@@ -84,7 +84,7 @@ final class SettingProviderOwnershipPass implements CompilerPassInterface
         }
 
         if ($owners !== []) {
-            $container->getDefinition(SettingRegistry::class)->setArgument('$owners', $owners);
+            $container->getDefinition(SettingRegistry::class)->setArgument(1, $owners);
         }
     }
 }
