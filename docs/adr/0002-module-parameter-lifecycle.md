@@ -37,3 +37,7 @@ Cette ADR formalise le contrat ; elle ne constitue **pas** une implémentation n
 `back/tests/Integration/SettingInventoryLifecycleTest.php` exerce `SettingInventorySynchronizer`, le registre, le dictionnaire sur disque et la vraie persistance Doctrine ORM sur SQLite en mémoire. Les scénarios couvrent la première matérialisation des clés Mails avec valeurs `NULL`, la répétition idempotente, la conservation d'une valeur lors d'une mise à jour, la suppression isolée des définitions retirées, la désinstallation et la réinstallation, ainsi que l'absence de valeurs dans `modules-params.json`.
 
 Ce test utilise des définitions de fixture correspondant aux clés Mails : il **ne constitue pas encore** le test de bout en bout avec le véritable provider Mails, Composer, le conteneur Symfony et les migrations du projet hôte demandé dans la section Validation. CI et crash-test XT restent à valider.
+
+## Correctif de compilation du conteneur (14/11/2026)
+
+Le compiler pass de propriété transmet la carte des propriétaires vérifiés au second argument du constructeur `SettingRegistry` via `Definition::setArgument(1, $owners)`. La variante avec la clé `'$owners'` produisait dans le conteneur compilé un argument nommé PHP invalide (`$owners:`). L'injection positionnelle conserve le contrôle strict des propriétaires et évite cette erreur de syntaxe. Le test unitaire vérifie la position injectée ; la compilation Symfony réelle, la CI et le crash-test de réinstallation Mails restent à valider.
