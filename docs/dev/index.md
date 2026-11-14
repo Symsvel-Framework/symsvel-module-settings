@@ -34,3 +34,7 @@ La synchronisation tente de restaurer le dictionnaire antérieur si le commit BD
 Les tests du stockage couvrent aussi la restauration d'un dictionnaire antérieur après publication et le refus d'un inventaire de version de schéma inconnue. Ces tests unitaires ne remplacent pas un test de transaction Composer avec SGBD réel.
 
 Un test de régression du différentiel simule la suppression du module Mails puis sa réinstallation : seules ses trois clés sont retirées puis réintroduites, les clés d'un autre module restent intactes et une nouvelle synchronisation identique ne produit aucun changement. Il s'agit d'un test du différentiel, non d'une désinstallation Composer réelle.
+
+### Visibilité des tests ignorés
+
+La CI affiche les raisons des tests PHPUnit ignorés avec `--display-skipped` (directement ou via le script Composer QA). Un test ignoré ne devient pas bloquant pour autant : les motifs sont examinés pour distinguer prérequis absents et couverture manquante.
