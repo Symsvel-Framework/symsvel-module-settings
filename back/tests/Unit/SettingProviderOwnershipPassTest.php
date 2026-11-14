@@ -65,7 +65,7 @@ final class SettingProviderOwnershipPassTest extends TestCase
         );
         self::assertSame(
             [OwnershipFixtureProvider::class => 'brevo'],
-            $container->getDefinition(SettingRegistry::class)->getArgument('$owners'),
+            $container->getDefinition(SettingRegistry::class)->getArgument(1),
         );
     }
 
