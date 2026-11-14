@@ -31,3 +31,9 @@ Le registre Settings découvre les définitions PHP des modules installés, mais
 ## Limite de cette étape
 
 Cette ADR formalise le contrat ; elle ne constitue **pas** une implémentation ni une validation du mécanisme.
+
+## Couverture d'intégration de l'inventaire (14/11/2026)
+
+`back/tests/Integration/SettingInventoryLifecycleTest.php` exerce `SettingInventorySynchronizer`, le registre, le dictionnaire sur disque et la vraie persistance Doctrine ORM sur SQLite en mémoire. Les scénarios couvrent la première matérialisation des clés Mails avec valeurs `NULL`, la répétition idempotente, la conservation d'une valeur lors d'une mise à jour, la suppression isolée des définitions retirées, la désinstallation et la réinstallation, ainsi que l'absence de valeurs dans `modules-params.json`.
+
+Ce test utilise des définitions de fixture correspondant aux clés Mails : il **ne constitue pas encore** le test de bout en bout avec le véritable provider Mails, Composer, le conteneur Symfony et les migrations du projet hôte demandé dans la section Validation. CI et crash-test XT restent à valider.
