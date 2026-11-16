@@ -23,3 +23,11 @@ non configurés en utilisant les métadonnées non secrètes de
 le module est installé et si son endpoint de lecture est autorisé. Les ACL
 restent imposées côté PHP et les secrets ne sont jamais renvoyés.
 Voir `symsvel-bo/docs/bo-ui.md`.
+
+## Composants génériques (16/11/2026)
+
+La page Settings utilise les composants partagés `Button` et `Alert`
+au lieu de dupliquer leurs styles. Après une mise à jour réussie d'un
+paramètre, elle émet `symsvel:alerts-changed` afin que le shell BO
+rafraîchisse immédiatement les alertes d'administration sans quitter la page.
+Voir `symsvel-bo/docs/bo-ui.md`.

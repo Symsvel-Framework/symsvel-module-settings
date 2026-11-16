@@ -1,5 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import Button from '../../../../components/Button.svelte';
+  import Alert from '../../../../components/Alert.svelte';
   import { goto } from '$app/navigation';
   import { resolve } from '$app/paths';
   import { ApiError } from '../../../../api/client';
@@ -62,6 +64,7 @@
       });
       message = t.saved;
       await reload();
+      window.dispatchEvent(new Event('symsvel:alerts-changed'));
     } catch (cause) {
       error = explain(cause);
     } finally {
@@ -74,10 +77,10 @@
 <div class="settings">
         <section class="panel">
           <div class="heading"><div><h1>{t.heading}</h1><p>{t.intro}</p></div>
-            <button type="button" class="secondary" onclick={reload} disabled={loading}>{t.load}</button>
+            <Button type="button" variant="secondary" onclick={reload} disabled={loading}>{t.load}</Button>
           </div>
-          {#if error}<p role="alert" class="notice error">{error}</p>{/if}
-          {#if message}<p role="status" class="notice success">{message}</p>{/if}
+          {#if error}<Alert kind="error">{error}</Alert>{/if}
+          {#if message}<Alert kind="success">{message}</Alert>{/if}
           {#if loading}<p role="status">{t.loading}</p>{/if}
           {#if !loading && settings.length === 0 && !error}<p>{t.empty}</p>{/if}
           {#each Object.entries(groups) as [group, items] (group)}
@@ -101,9 +104,9 @@
                     placeholder={item.secret && item.configured ? t.secret : t.notSet}
                     required={item.required} />
                 {/if}
-                <button disabled={saving !== null || loading || (item.secret && item.configured && (drafts[item.key] ?? '') === '')} type="submit">
+                <Button disabled={saving !== null || loading || (item.secret && item.configured && (drafts[item.key] ?? '') === '')} type="submit">
                   {saving === item.key ? t.saving : t.save}
-                </button>
+                </Button>
               </form>
             {/each}
           {/each}
@@ -124,10 +127,5 @@
   input, select { padding: 12px; border: 1px solid #ccd4df; border-radius: 8px; font: inherit; min-width: 0; }
   button { background: #1e293b; color: white; border: 0; border-radius: 8px;
     padding: 12px 16px; font: inherit; cursor: pointer; }
-  button.secondary { background: white; color: #1e293b; border: 1px solid #ccd4df; }
-  button:disabled { opacity: .55; cursor: not-allowed; }
-  .notice { padding: 12px 14px; border-radius: 8px; }
-  .error { background: #fff1f1; color: #9d2626; }
-  .success { background: #eefaf2; color: #236747; }
   @media (max-width: 800px) { .setting { grid-template-columns: 1fr; } .panel { padding: 18px; } }
 </style>
