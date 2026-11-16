@@ -87,3 +87,13 @@ de présentation indépendant, pas une preuve d'appartenance. `groupSettings`
 est conservé pour les usages existants ; `settingsByModule` prépare les
 accordéons sans modifier ni le registre ni la réponse API. Le test assure
 qu'un même module reste dans un unique accordéon malgré plusieurs groupes.
+
+
+## Déclaration des permissions au registre ACLs (16/11/2026)
+
+Le module fournit désormais `SettingsPermissionProvider` avec le tag
+`symsvel.acls.permission_provider`. Le catalogue expose uniquement les
+actions BO réelles, sans duplications dans le Core ou dans ACLs. Le runtime
+conserve les contrôles `BoAccessGate` déjà en place ; la déclaration
+n'accorde aucun droit automatiquement. Pas de migration ni de changement
+sur les routes. CI et CT XT requis.

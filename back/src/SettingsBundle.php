@@ -6,6 +6,7 @@ namespace SymSvel\Module\Settings;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
+use SymSvel\Module\Settings\Permission\SettingsPermissionProvider;
 use SymSvel\Module\Settings\DependencyInjection\SettingProviderOwnershipPass;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
@@ -40,6 +41,8 @@ final class SettingsBundle extends AbstractBundle
         }
         $builder->getDefinition(PublicSettingsController::class)->addTag('controller.service_arguments');
         $builder->getDefinition(BoSettingsController::class)->addTag('controller.service_arguments');
+        $builder->register(SettingsPermissionProvider::class, SettingsPermissionProvider::class)
+            ->addTag('symsvel.acls.permission_provider');
     }
 
     public function prependExtension(ContainerConfigurator $container, ContainerBuilder $builder): void
