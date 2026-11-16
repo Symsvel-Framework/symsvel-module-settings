@@ -11,3 +11,15 @@ Une future interface ne devra jamais retourner la valeur d'un paramètre `secret
 ## Écran BO Settings
 
 La page `/settings` présentera les paramètres regroupés par module, avec leurs types, descriptions et état configuré. Elle modifie uniquement les valeurs et ne révèle jamais les secrets ; la lecture et la modification exigent respectivement les ACL `settings:list` et `settings:update`. Les URLs déduites automatiquement du Setup, notamment la confirmation de l'adresse App, ne sont pas éditables. Les définitions restent régies par le code des modules et Tooling.
+
+
+## Coque BO et alertes de configuration (16/11/2026)
+
+La page `/settings` est rendue par le layout hôte `symsvel-bo`; elle
+conserve uniquement ses formulaires et appels `boApi`. Elle déclare en
+option `boAlerts` dans sa navigation, qui signale les paramètres obligatoires
+non configurés en utilisant les métadonnées non secrètes de
+`GET /apibo/settings`. Le shell affiche ces avertissements seulement si
+le module est installé et si son endpoint de lecture est autorisé. Les ACL
+restent imposées côté PHP et les secrets ne sont jamais renvoyés.
+Voir `symsvel-bo/docs/bo-ui.md`.

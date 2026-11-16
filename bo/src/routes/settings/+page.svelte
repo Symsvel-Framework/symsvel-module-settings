@@ -4,10 +4,9 @@
   import { resolve } from '$app/paths';
   import { ApiError } from '../../../../api/client';
   import { uiLanguage } from '../../../../api/locales';
-  import { boApi, currentBo } from '../../../../api/session';
+  import { boApi } from '../../../../api/session';
   import { settingsCopy, groupSettings, type BoSetting, type BoSettingsResponse } from '../../presentation';
 
-  let ready = $state(false);
   let loading = $state(false);
   let saving = $state<string | null>(null);
   let settings = $state<BoSetting[]>([]);
@@ -47,17 +46,7 @@
   }
 
   onMount(() => {
-    let mounted = true;
-    void currentBo().then((identity) => {
-      if (!mounted) return;
-      if (!identity) {
-        void goto(resolve('/login'), { replaceState: true });
-        return;
-      }
-      ready = true;
-      void reload();
-    });
-    return () => { mounted = false; };
+    void reload();
   });
 
   async function save(item: BoSetting): Promise<void> {
@@ -82,15 +71,7 @@
 </script>
 
 <svelte:head><title>{t.title} | SymSvel BO</title></svelte:head>
-{#if ready}
-  <div class="bo-shell">
-    <aside class="bo-sidebar">
-      <div class="bo-brand">SymSvel BO</div>
-      <nav aria-label={t.dashboard}><a href={resolve('/dashboard')}>{t.dashboard}</a></nav>
-    </aside>
-    <div class="bo-main">
-      <header class="bo-topbar"><strong>{t.title}</strong></header>
-      <main class="bo-content settings">
+<div class="settings">
         <section class="panel">
           <div class="heading"><div><h1>{t.heading}</h1><p>{t.intro}</p></div>
             <button type="button" class="secondary" onclick={reload} disabled={loading}>{t.load}</button>
@@ -127,17 +108,10 @@
             {/each}
           {/each}
         </section>
-      </main>
-    </div>
-  </div>
-{:else}
-  <main class="auth-shell"><p role="status">{t.verifying}</p></main>
-{/if}
+      </div>
 
 <style>
   .settings { max-width: 1200px; margin: 0 auto; }
-  .bo-sidebar nav { margin-top: 26px; }
-  .bo-sidebar a { color: #dce3ec; }
   .panel { padding: 28px; background: white; border: 1px solid #e2e7ee; border-radius: 14px; }
   .heading { display: flex; align-items: start; justify-content: space-between; gap: 24px; }
   h1 { margin: 0; } h2 { margin: 28px 0 12px; text-transform: capitalize; }
