@@ -42,3 +42,7 @@ La CI affiche les raisons des tests PHPUnit ignorés avec `--display-skipped` (d
 ## API d'administration BO des Settings (16/11/2026)
 
 L'API `GET /apibo/settings` et `PUT /apibo/settings/{key}` utilise les services existants `SettingPresentation`, `SettingRegistry` et `SettingManager` : seules les valeurs sont modifiables, jamais les définitions. L'autorisation est déléguée au contrat `Acls\Access\BoAccessGate` implémenté par Admins pour éviter une dépendance cyclique Settings/Auth/Admins. Permissions requises : `settings:list` et `settings:update`. Un secret défini ne ressort jamais dans l'API. Les erreurs 401/403/400/404 et toutes les réponses portent `Cache-Control: no-store`. Pas de changement des migrations ni de l'inventaire des modules. Tests, CI et crash-test XT requis.
+
+### Interface BO Settings (16/11/2026)
+
+`bo/src/routes/settings/+page.svelte` utilise `currentBo()` et `boApi()` depuis le BO hôte, présente la définition de chaque paramètre par groupe et permet d'enregistrer les valeurs via `PUT /apibo/settings/{key}`. Les champs changent selon le type (`email`, `url`, booléen, texte, secret) ; l'API masque les secrets et l'UI ne réaffiche jamais une ancienne valeur secrète. Les libellés FR/EN et le regroupement sont testés dans `bo/tests/settings.test.ts`. CI de l'intégration BO et CT navigateur à confirmer.
