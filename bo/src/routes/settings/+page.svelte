@@ -125,7 +125,5 @@
   .setting small { display: block; font-size: .78rem; margin-top: 5px; }
   .setting p { font-size: .86rem; margin: 5px 0; }
   input, select { padding: 12px; border: 1px solid #ccd4df; border-radius: 8px; font: inherit; min-width: 0; }
-  button { background: #1e293b; color: white; border: 0; border-radius: 8px;
-    padding: 12px 16px; font: inherit; cursor: pointer; }
   @media (max-width: 800px) { .setting { grid-template-columns: 1fr; } .panel { padding: 18px; } }
 </style>
