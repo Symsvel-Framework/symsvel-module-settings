@@ -58,3 +58,7 @@ Le job `bo-integration` clone le BO hôte `dev`, copie la route Settings et ses 
 ### Correctif du banc Svelte BO Settings (16/11/2026)
 
 L'assemblage CI conserve désormais un test Vitest colocataire du helper `presentation.ts` dans `bo/src/lib/modules/settings/presentation.test.ts`. Il est copié naturellement par Tooling et résout ses imports de manière identique dans le module et dans le BO hôte. L'ancien test `bo/tests/settings.test.ts` reste dans le module pour sa validation unitaire historique ; il n'est plus copié sous `src/routes` du BO, où ses chemins relatifs étaient erronés. La CI assemblée vérifie TypeScript, lint, build et tests.
+
+### Déclaration de navigation BO (16/11/2026)
+
+Le module fournit `bo/src/lib/modules/settings/navigation.ts`, qui décrit sa page `/settings` avec libellés FR/EN et sa permission `settings:list`. Le dashboard du BO hôte importe les déclarations des modules effectivement installés ; il n'affiche cette entrée que si `GET /apibo/settings` réussit via `boApi`, ce qui vérifie le droit côté PHP avant toute navigation. Aucune route Symfony centrale ni règle d'accès Svelte parallèle n'est créée. Le test `bo/tests/settings.test.ts` valide la déclaration, et la CI de l'assemblage BO doit confirmer l'import. CT XT après mise à jour du BO et des modules.

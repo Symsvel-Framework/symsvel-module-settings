@@ -17,3 +17,14 @@ describe('settings BO', () => {
     expect(grouped.mail[0].value).toBeNull();
   });
 });
+
+import { boNavigation } from '../src/lib/modules/settings/navigation';
+
+describe('settings BO navigation declaration', () => {
+  it('links to the ACL-protected read-only endpoint', () => {
+    expect(boNavigation.path).toBe('/settings');
+    expect(boNavigation.probe).toBe('/apibo/settings');
+    expect(boNavigation.action).toBe('list');
+    expect(boNavigation.resource).toBe('settings');
+  });
+});
