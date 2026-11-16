@@ -10,6 +10,7 @@ use SymSvel\Module\Settings\DependencyInjection\SettingProviderOwnershipPass;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 use SymSvel\Module\Settings\Controller\PublicSettingsController;
+use SymSvel\Module\Settings\Controller\BoSettingsController;
 use SymSvel\Module\Settings\Repository\SettingRepository;
 use SymSvel\Module\Settings\Service\PublicSettingFilter;
 use SymSvel\Module\Settings\Service\SettingManager;
@@ -34,10 +35,11 @@ final class SettingsBundle extends AbstractBundle
 
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
     {
-        foreach ([SettingRepository::class, SettingRegistry::class, SettingKeyQualifier::class, SettingManager::class, SettingInventory::class, SettingInventoryDiff::class, SettingInventoryStore::class, SettingInventorySynchronizer::class, SyncSettingsInventoryCommand::class, SettingSecretCipher::class, SettingOnboarding::class, SettingPresentation::class, PublicSettingFilter::class, PublicSettingsController::class] as $service) {
+        foreach ([SettingRepository::class, SettingRegistry::class, SettingKeyQualifier::class, SettingManager::class, SettingInventory::class, SettingInventoryDiff::class, SettingInventoryStore::class, SettingInventorySynchronizer::class, SyncSettingsInventoryCommand::class, SettingSecretCipher::class, SettingOnboarding::class, SettingPresentation::class, PublicSettingFilter::class, PublicSettingsController::class, BoSettingsController::class] as $service) {
             $builder->register($service, $service)->setAutowired(true)->setAutoconfigured(true);
         }
         $builder->getDefinition(PublicSettingsController::class)->addTag('controller.service_arguments');
+        $builder->getDefinition(BoSettingsController::class)->addTag('controller.service_arguments');
     }
 
     public function prependExtension(ContainerConfigurator $container, ContainerBuilder $builder): void

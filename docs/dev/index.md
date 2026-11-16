@@ -38,3 +38,7 @@ Un test de régression du différentiel simule la suppression du module Mails pu
 ### Visibilité des tests ignorés
 
 La CI affiche les raisons des tests PHPUnit ignorés avec `--display-skipped` (directement ou via le script Composer QA). Un test ignoré ne devient pas bloquant pour autant : les motifs sont examinés pour distinguer prérequis absents et couverture manquante.
+
+## API d'administration BO des Settings (16/11/2026)
+
+L'API `GET /apibo/settings` et `PUT /apibo/settings/{key}` utilise les services existants `SettingPresentation`, `SettingRegistry` et `SettingManager` : seules les valeurs sont modifiables, jamais les définitions. L'autorisation est déléguée au contrat `Acls\Access\BoAccessGate` implémenté par Admins pour éviter une dépendance cyclique Settings/Auth/Admins. Permissions requises : `settings:list` et `settings:update`. Un secret défini ne ressort jamais dans l'API. Les erreurs 401/403/400/404 et toutes les réponses portent `Cache-Control: no-store`. Pas de changement des migrations ni de l'inventaire des modules. Tests, CI et crash-test XT requis.

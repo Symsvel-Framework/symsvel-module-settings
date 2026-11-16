@@ -8,7 +8,8 @@
         "ext-sodium": "*",
         "doctrine/doctrine-bundle": "^2.15 || ^3.0",
         "doctrine/orm": "^3.0",
-        "symfony/framework-bundle": "^8.1"
+        "symfony/framework-bundle": "^8.1",
+        "symsvel-framework/module-acls": "dev-dev"
     },
     "autoload": {
         "psr-4": {
@@ -37,5 +38,11 @@
         "branch-alias": {
             "dev-main": "1.0.x-dev"
         }
-    }
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/Symsvel-Framework/symsvel-module-acls.git"
+        }
+    ]
 }

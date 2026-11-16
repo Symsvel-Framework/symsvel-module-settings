@@ -1,7 +1,9 @@
 {
     "schema": 1,
     "name": "Settings",
-    "dependencies": {},
+    "dependencies": {
+        "acls": "*"
+    },
     "tables": [
         "symsvel_settings"
     ],
