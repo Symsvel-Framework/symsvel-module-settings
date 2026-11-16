@@ -120,7 +120,7 @@
                     placeholder={item.secret && item.configured ? t.secret : t.notSet}
                     required={item.required} />
                 {/if}
-                <button disabled={saving !== null || loading} type="submit">
+                <button disabled={saving !== null || loading || (item.secret && item.configured && (drafts[item.key] ?? '') === '')} type="submit">
                   {saving === item.key ? t.saving : t.save}
                 </button>
               </form>
