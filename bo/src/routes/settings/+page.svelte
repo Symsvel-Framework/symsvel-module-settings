@@ -7,7 +7,7 @@
   import { ApiError } from '../../../../api/client';
   import { uiLanguage } from '../../../../api/locales';
   import { boApi } from '../../../../api/session';
-  import { settingsCopy, groupSettings, type BoSetting, type BoSettingsResponse } from '../../presentation';
+  import { settingsCopy, settingsByModule, type BoSetting, type BoSettingsResponse } from '../../presentation';
 
   let loading = $state(false);
   let saving = $state<string | null>(null);
@@ -17,7 +17,7 @@
   let message = $state('');
   const language = $derived($uiLanguage ?? (typeof navigator === 'undefined' ? 'en' : navigator.language));
   const t = $derived(settingsCopy(language));
-  const groups = $derived(groupSettings(settings));
+  const groups = $derived(settingsByModule(settings));
 
   function explain(cause: unknown): string {
     if (cause instanceof ApiError) {

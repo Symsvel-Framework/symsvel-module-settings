@@ -49,3 +49,16 @@ export function groupSettings(data: BoSetting[]): Record<string, BoSetting[]> {
       return groups;
     }, {});
 }
+
+
+/** Use the qualified setting owner, not its arbitrary presentation subgroup. */
+export function settingsByModule(data: BoSetting[]): Record<string, BoSetting[]> {
+  return [...data]
+    .sort((a, b) => a.key.split('.')[0].localeCompare(b.key.split('.')[0]) ||
+      a.group.localeCompare(b.group) || a.label.localeCompare(b.label))
+    .reduce<Record<string, BoSetting[]>>((modules, item) => {
+      const owner = item.key.split('.')[0];
+      (modules[owner] ??= []).push(item);
+      return modules;
+    }, {});
+}

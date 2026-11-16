@@ -76,3 +76,14 @@ vers le composant de présentation.
 
 Validation : QA module + assemblage BO et crash-test XT (navigation au clavier,
 changement de groupe, sauvegarde et rafraîchissement des alertes).
+
+
+### Correction de la portée des accordéons Settings (16/11/2026)
+
+Les accordéons sont organisés par **module propriétaire**, établi par le
+préfixe de la clé qualifiée `<module>.<setting>` (par exemple `auth.*`,
+`mails.*`). La propriété `group` de `SettingDefinition` demeure un groupe
+de présentation indépendant, pas une preuve d'appartenance. `groupSettings`
+est conservé pour les usages existants ; `settingsByModule` prépare les
+accordéons sans modifier ni le registre ni la réponse API. Le test assure
+qu'un même module reste dans un unique accordéon malgré plusieurs groupes.
