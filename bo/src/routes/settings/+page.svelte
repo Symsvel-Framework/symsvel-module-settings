@@ -83,10 +83,12 @@
           {#if message}<Alert kind="success">{message}</Alert>{/if}
           {#if loading}<p role="status">{t.loading}</p>{/if}
           {#if !loading && settings.length === 0 && !error}<p>{t.empty}</p>{/if}
-          {#each Object.entries(groups) as [group, items] (group)}
-            <h2>{group}</h2>
-            {#each items as item (item.key)}
-              <form class="setting" onsubmit={(event) => { event.preventDefault(); void save(item); }}>
+          {#each Object.entries(groups) as [group, items], index (group)}
+            <details class="module-group" name="symsvel-settings-groups" open={index === 0}>
+              <summary><span>{group}</span><small>{items.length}</small></summary>
+              <div class="module-group-fields">
+                {#each items as item (item.key)}
+                  <form class="setting" onsubmit={(event) => { event.preventDefault(); void save(item); }}>
                 <div>
                   <label for={'setting-' + item.key}>{item.label}</label>
                   <small>{item.key} · {item.required ? t.required : t.optional}</small>
@@ -107,8 +109,10 @@
                 <Button disabled={saving !== null || loading || (item.secret && item.configured && (drafts[item.key] ?? '') === '')} type="submit">
                   {saving === item.key ? t.saving : t.save}
                 </Button>
-              </form>
-            {/each}
+                  </form>
+                {/each}
+              </div>
+            </details>
           {/each}
         </section>
       </div>
@@ -119,6 +123,13 @@
   .heading { display: flex; align-items: start; justify-content: space-between; gap: 24px; }
   h1 { margin: 0; } h2 { margin: 28px 0 12px; text-transform: capitalize; }
   p, small { color: #667085; }
+  .module-group { border: 1px solid #e2e7ee; border-radius: 10px; margin: 12px 0; overflow: hidden; }
+  .module-group summary { display: flex; align-items: center; justify-content: space-between; cursor: pointer;
+    padding: 16px 18px; font-size: 1.05rem; font-weight: 700; text-transform: capitalize; background: #f8fafc; }
+  .module-group summary:hover, .module-group summary:focus-visible { background: #eef3fb; }
+  .module-group summary small { font-size: .85rem; font-weight: 600; color: #667085; }
+  .module-group[open] summary { border-bottom: 1px solid #e2e7ee; }
+  .module-group-fields { padding: 0 18px; }
   .setting { display: grid; grid-template-columns: minmax(200px, 1fr) minmax(190px, 1fr) auto;
     gap: 18px; align-items: center; padding: 18px 0; border-top: 1px solid #edf0f4; }
   .setting label { display: block; font-weight: 700; }

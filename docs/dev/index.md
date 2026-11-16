@@ -62,3 +62,17 @@ L'assemblage CI conserve désormais un test Vitest colocataire du helper `presen
 ### Déclaration de navigation BO (16/11/2026)
 
 Le module fournit `bo/src/lib/modules/settings/navigation.ts`, qui décrit sa page `/settings` avec libellés FR/EN et sa permission `settings:list`. Le dashboard du BO hôte importe les déclarations des modules effectivement installés ; il n'affiche cette entrée que si `GET /apibo/settings` réussit via `boApi`, ce qui vérifie le droit côté PHP avant toute navigation. Aucune route Symfony centrale ni règle d'accès Svelte parallèle n'est créée. Le test `bo/tests/settings.test.ts` valide la déclaration, et la CI de l'assemblage BO doit confirmer l'import. CT XT après mise à jour du BO et des modules.
+
+
+## Interface BO : accordéons par groupe de module (16/11/2026)
+
+L'écran Settings reprend la propriété métier `group` des définitions fournies
+par chaque module. Chaque groupe est un élément HTML natif `details/summary`
+avec `name` commun : une section s'ouvre à la fois. Le premier groupe est
+ouvert à l'arrivée ; les autres sont repliés. Les valeurs restent modifiables
+et enregistrées individuellement comme auparavant, et les secrets masqués
+ne sont jamais préremplis. Aucune requête ni règle d'accès n'est déplacée
+vers le composant de présentation.
+
+Validation : QA module + assemblage BO et crash-test XT (navigation au clavier,
+changement de groupe, sauvegarde et rafraîchissement des alertes).
