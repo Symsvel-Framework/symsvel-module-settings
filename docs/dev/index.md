@@ -46,3 +46,7 @@ L'API `GET /apibo/settings` et `PUT /apibo/settings/{key}` utilise les services 
 ### Interface BO Settings (16/11/2026)
 
 `bo/src/routes/settings/+page.svelte` utilise `currentBo()` et `boApi()` depuis le BO hôte, présente la définition de chaque paramètre par groupe et permet d'enregistrer les valeurs via `PUT /apibo/settings/{key}`. Les champs changent selon le type (`email`, `url`, booléen, texte, secret) ; l'API masque les secrets et l'UI ne réaffiche jamais une ancienne valeur secrète. Les libellés FR/EN et le regroupement sont testés dans `bo/tests/settings.test.ts`. CI de l'intégration BO et CT navigateur à confirmer.
+
+### Tests HTTP BO Settings (16/11/2026)
+
+`BoSettingsControllerTest` assemble le vrai registre Settings, `SettingManager`, Doctrine ORM/SQLite et un faux `BoAccessGate` pour éprouver le contrôle d'ACL. Il valide l'écriture, la lecture, le masquage des secrets, les refus 403, les clés inconnues et la validation de type email. Ce test ne remplace pas le CT de l'interface assemblée et de la configuration Mailpit.
