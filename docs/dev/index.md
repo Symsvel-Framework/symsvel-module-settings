@@ -50,3 +50,7 @@ L'API `GET /apibo/settings` et `PUT /apibo/settings/{key}` utilise les services 
 ### Tests HTTP BO Settings (16/11/2026)
 
 `BoSettingsControllerTest` assemble le vrai registre Settings, `SettingManager`, Doctrine ORM/SQLite et un faux `BoAccessGate` pour éprouver le contrôle d'ACL. Il valide l'écriture, la lecture, le masquage des secrets, les refus 403, les clés inconnues et la validation de type email. Ce test ne remplace pas le CT de l'interface assemblée et de la configuration Mailpit.
+
+### CI de l'écran Settings assemblé (16/11/2026)
+
+Le job `bo-integration` clone le BO hôte `dev`, copie la route Settings et ses helpers comme Tooling, installe npm et vérifie formatage, TypeScript/Svelte, ESLint, build statique et tests unitaires du module. Ce test ne fait aucun appel HTTP réel ni accès à la BDD XT ; les crash-tests navigateur et la vérification des paramètres Mails restent requis.
