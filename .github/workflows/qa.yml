@@ -42,7 +42,6 @@ jobs:
           mkdir -p assembled-bo/src/routes/settings
           cp bo/src/lib/modules/settings/*.ts assembled-bo/src/lib/modules/settings/
           cp bo/src/routes/settings/+page.svelte assembled-bo/src/lib/modules/settings/routes/settings/+page.svelte
-          cp bo/tests/settings.test.ts assembled-bo/src/routes/settings.test.ts
           cat > assembled-bo/src/routes/settings/+page.svelte <<'ROUTE'
           <script lang="ts">
             import ModulePage from '#lib/modules/settings/routes/settings/+page.svelte';

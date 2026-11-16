@@ -54,3 +54,7 @@ L'API `GET /apibo/settings` et `PUT /apibo/settings/{key}` utilise les services 
 ### CI de l'écran Settings assemblé (16/11/2026)
 
 Le job `bo-integration` clone le BO hôte `dev`, copie la route Settings et ses helpers comme Tooling, installe npm et vérifie formatage, TypeScript/Svelte, ESLint, build statique et tests unitaires du module. Ce test ne fait aucun appel HTTP réel ni accès à la BDD XT ; les crash-tests navigateur et la vérification des paramètres Mails restent requis.
+
+### Correctif du banc Svelte BO Settings (16/11/2026)
+
+L'assemblage CI conserve désormais un test Vitest colocataire du helper `presentation.ts` dans `bo/src/lib/modules/settings/presentation.test.ts`. Il est copié naturellement par Tooling et résout ses imports de manière identique dans le module et dans le BO hôte. L'ancien test `bo/tests/settings.test.ts` reste dans le module pour sa validation unitaire historique ; il n'est plus copié sous `src/routes` du BO, où ses chemins relatifs étaient erronés. La CI assemblée vérifie TypeScript, lint, build et tests.
