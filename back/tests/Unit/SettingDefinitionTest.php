@@ -37,6 +37,12 @@ final class SettingDefinitionTest extends TestCase
         new SettingDefinition('example.name', 'Example', type: 'choice', choices: ['smtp://host' => 'SMTP']);
     }
 
+    public function testImmutableSettingMetadataSurvivesQualification(): void
+    {
+        $setting = new SettingDefinition('primary_language', 'Primary', editable: false);
+        self::assertFalse($setting->withKey('languages.primary_language')->editable);
+    }
+
     public function testRejectsUnknownType(): void
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -106,6 +112,7 @@ final class SettingDefinitionTest extends TestCase
         self::assertSame($original->blocking, $qualified->blocking);
         self::assertSame($original->description, $qualified->description);
         self::assertSame($original->choices, $qualified->choices);
+        self::assertSame($original->editable, $qualified->editable);
     }
 
     public function testQualifiedCopyStillValidatesKey(): void

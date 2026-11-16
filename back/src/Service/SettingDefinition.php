@@ -18,6 +18,7 @@ final readonly class SettingDefinition
         public ?string $description = null,
         /** @var array<string, string> value => display label; module-owned, never writable by BO. */
         public array $choices = [],
+        public bool $editable = true,
     ) {
         if ($key === '' || $key !== trim($key) || strlen($key) > 190) {
             throw new \InvalidArgumentException('Invalid setting definition key.');
@@ -57,6 +58,7 @@ final readonly class SettingDefinition
             blocking: $this->blocking,
             description: $this->description,
             choices: $this->choices,
+            editable: $this->editable,
         );
     }
 }

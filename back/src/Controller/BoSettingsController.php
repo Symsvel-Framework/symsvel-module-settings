@@ -42,8 +42,12 @@ final readonly class BoSettingsController
         if (!$decision->allowed()) {
             return self::failure($decision->status);
         }
-        if ($this->registry->get($key) === null) {
+        $definition = $this->registry->get($key);
+        if ($definition === null) {
             return self::failure(404);
+        }
+        if (!$definition->editable) {
+            return self::failure(409);
         }
         if (!str_starts_with(strtolower($request->headers->get('Content-Type', '')), 'application/json')) {
             return self::failure(415);
@@ -75,7 +79,7 @@ final readonly class BoSettingsController
     {
         return self::reply(['error' => ['code' => match ($status) {
             400 => 'invalid_request', 401 => 'unauthorized', 403 => 'forbidden',
-            404 => 'not_found', 415 => 'unsupported_media_type',
+            404 => 'not_found', 409 => 'read_only_setting', 415 => 'unsupported_media_type',
             default => 'unavailable',
         }]], $status);
     }

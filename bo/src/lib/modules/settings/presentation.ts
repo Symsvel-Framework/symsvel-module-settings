@@ -4,6 +4,7 @@ export type BoSetting = {
   group: string;
   type: 'string' | 'boolean' | 'email' | 'url' | 'choice';
   choices?: Record<string, string>;
+  editable?: boolean;
   required: boolean;
   secret: boolean;
   configured: boolean;
@@ -23,7 +24,7 @@ const texts = {
     required: 'Obligatoire', optional: 'Facultatif',
     invalid: 'Valeur invalide.', forbidden: 'Action interdite par les ACL.',
     session: 'Session expirée. Reconnectez-vous.', failure: 'Impossible de charger ou enregistrer.',
-    verifying: 'Vérification de la session…'
+    verifying: 'Vérification de la session…', readOnly: 'Défini à l’installation · Lecture seule'
   },
   en: {
     title: 'Settings', heading: 'Module configuration', dashboard: 'Dashboard',
@@ -35,7 +36,7 @@ const texts = {
     required: 'Required', optional: 'Optional',
     invalid: 'Invalid value.', forbidden: 'Permission denied.',
     session: 'Session expired. Please sign in.', failure: 'Cannot load or save settings.',
-    verifying: 'Checking session…'
+    verifying: 'Checking session…', readOnly: 'Set during installation · Read-only'
   }
 };
 export type SettingsCopy = (typeof texts)['fr'];

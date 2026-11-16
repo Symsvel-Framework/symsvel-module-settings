@@ -32,6 +32,7 @@ final class SettingInventory
                 'public' => $definition->public,
                 'blocking' => $definition->blocking,
                 'description' => $definition->description,
+                'editable' => $definition->editable,
                 ...($definition->type === 'choice' ? ['choices' => $definition->choices] : []),
             ];
         }

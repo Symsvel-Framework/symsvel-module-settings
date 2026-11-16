@@ -94,14 +94,15 @@
                   <small>{item.key} · {item.required ? t.required : t.optional}</small>
                   {#if item.description}<p>{item.description}</p>{/if}
                   {#if item.secret && item.configured}<small>{t.secret} · {t.configured}</small>{/if}
+                  {#if item.editable === false}<small>{t.readOnly}</small>{/if}
                 </div>
                 {#if item.type === 'boolean'}
-                  <select id={'setting-' + item.key} bind:value={drafts[item.key]}>
+                  <select id={'setting-' + item.key} bind:value={drafts[item.key]} disabled={item.editable === false}>
                     <option value="1">{t.enabled}</option><option value="0">{t.disabled}</option>
                   </select>
                 {:else if item.type === 'choice'}
                   <select id={'setting-' + item.key} bind:value={drafts[item.key]}
-                    disabled={Object.keys(item.choices ?? {}).length === 0}
+                    disabled={item.editable === false || Object.keys(item.choices ?? {}).length === 0}
                     required={item.required}>
                     <option value="">{t.notSet}</option>
                     {#each Object.entries(item.choices ?? {}) as [value, label] (value)}
@@ -113,11 +114,13 @@
                     type={item.secret ? 'password' : (item.type === 'email' ? 'email' : (item.type === 'url' ? 'url' : 'text'))}
                     autocomplete="off" bind:value={drafts[item.key]}
                     placeholder={item.secret && item.configured ? t.secret : t.notSet}
-                    required={item.required} />
+                    required={item.required} disabled={item.editable === false} />
                 {/if}
-                <Button disabled={saving !== null || loading || (item.type === 'choice' && Object.keys(item.choices ?? {}).length === 0) || (item.secret && item.configured && (drafts[item.key] ?? '') === '')} type="submit">
-                  {saving === item.key ? t.saving : t.save}
-                </Button>
+                {#if item.editable !== false}
+                  <Button disabled={saving !== null || loading || (item.type === 'choice' && Object.keys(item.choices ?? {}).length === 0) || (item.secret && item.configured && (drafts[item.key] ?? '') === '')} type="submit">
+                    {saving === item.key ? t.saving : t.save}
+                  </Button>
+                {/if}
                   </form>
                 {/each}
               </div>

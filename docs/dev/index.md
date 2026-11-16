@@ -117,3 +117,17 @@ existants gardent leur comportement. Ce contrat reste générique et permet
 à Mails d'exposer uniquement les transports nommés disponibles depuis
 ses providers. Tests : validation de choix côté PHP, persistance SQLite,
 métadonnées et formulaire assemblé. CT XT requis.
+
+
+## Paramètres non modifiables après le Setup (16/11/2026)
+
+`SettingDefinition(editable: false)` est une métadonnée contrôlée
+par le code du module et non par le navigateur. `SettingPresentation`
+et l'inventaire la publient sans inclure de secret ; le BO affiche la
+valeur en lecture seule et ne propose plus de bouton Enregistrer.
+`BoSettingsController` rejette les écritures forcées avec HTTP 409
+`read_only_setting`. Les commandes locales de Setup conservent la
+possibilité de renseigner la valeur via `SettingManager`, qui reste
+responsable de la persistance. Le contrôle métier de non-changement
+après initialisation reste dans le module propriétaire, pas dans
+Settings. Utilisé par `languages.primary_language`.

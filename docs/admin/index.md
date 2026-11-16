@@ -40,3 +40,11 @@ valeurs sont fournies par le module propriétaire. Une valeur inconnue
 est refusée par l'API et ne remplace jamais l'ancienne. Pour Mails, les
 choix proviennent des transports installés, et ne contiennent pas les
 DSN ou identifiants privés.
+
+
+## Paramètres initialisés définitivement (16/11/2026)
+
+Les définitions de modules peuvent signaler un paramètre en
+**lecture seule** : son affichage est conservé, mais l'enregistrement
+est désactivé et l'API refuse les écritures directes. La langue
+principale définie par le Setup utilise ce mécanisme.
