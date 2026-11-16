@@ -32,6 +32,7 @@ final class SettingInventory
                 'public' => $definition->public,
                 'blocking' => $definition->blocking,
                 'description' => $definition->description,
+                ...($definition->type === 'choice' ? ['choices' => $definition->choices] : []),
             ];
         }
         ksort($modules, SORT_STRING);

@@ -11,7 +11,7 @@ final class SettingPresentation
 {
     /**
      * @param callable(string): ?string $read
-     * @return list<array{key: string, label: string, group: string, type: string, required: bool, secret: bool, public: bool, blocking: bool, description: ?string, configured: bool, value: ?string}>
+     * @return list<array{key: string, label: string, group: string, type: string, required: bool, secret: bool, public: bool, blocking: bool, description: ?string, choices: array<string, string>, configured: bool, value: ?string}>
      */
     public function all(SettingRegistry $registry, callable $read): array
     {
@@ -29,6 +29,7 @@ final class SettingPresentation
                 'public' => $definition->public,
                 'blocking' => $definition->blocking,
                 'description' => $definition->description,
+                'choices' => $definition->choices,
                 'configured' => $configured,
                 'value' => $definition->secret ? null : $value,
             ];

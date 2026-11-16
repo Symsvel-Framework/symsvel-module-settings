@@ -11,9 +11,30 @@ final class SettingDefinitionTest extends TestCase
 {
     public function testAcceptsSupportedTypes(): void
     {
-        foreach (['string', 'boolean', 'email', 'url'] as $type) {
+        foreach (['string', 'boolean', 'email', 'url', 'choice'] as $type) {
             self::assertSame($type, (new SettingDefinition('example.key', 'Example', type: $type))->type);
         }
+    }
+
+    public function testChoiceMetadataIsValidatedAndPreserved(): void
+    {
+        $original = new SettingDefinition('transport', 'Transport', type: 'choice', choices: [
+            'mailpit' => 'Mailpit',
+            'smtp4dev' => 'smtp4dev',
+        ]);
+        self::assertSame($original->choices, $original->withKey('mails.transport')->choices);
+    }
+
+    public function testRejectsChoiceValuesOnOtherTypes(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        new SettingDefinition('example.name', 'Example', choices: ['mailpit' => 'Mailpit']);
+    }
+
+    public function testRejectsInvalidChoiceIdentifiers(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        new SettingDefinition('example.name', 'Example', type: 'choice', choices: ['smtp://host' => 'SMTP']);
     }
 
     public function testRejectsUnknownType(): void
@@ -84,6 +105,7 @@ final class SettingDefinitionTest extends TestCase
         self::assertSame($original->public, $qualified->public);
         self::assertSame($original->blocking, $qualified->blocking);
         self::assertSame($original->description, $qualified->description);
+        self::assertSame($original->choices, $qualified->choices);
     }
 
     public function testQualifiedCopyStillValidatesKey(): void

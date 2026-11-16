@@ -16,12 +16,23 @@ final readonly class SettingDefinition
         public bool $public = false,
         public bool $blocking = false,
         public ?string $description = null,
+        /** @var array<string, string> value => display label; module-owned, never writable by BO. */
+        public array $choices = [],
     ) {
         if ($key === '' || $key !== trim($key) || strlen($key) > 190) {
             throw new \InvalidArgumentException('Invalid setting definition key.');
         }
-        if (!in_array($type, ['string', 'boolean', 'email', 'url'], true)) {
+        if (!in_array($type, ['string', 'boolean', 'email', 'url', 'choice'], true)) {
             throw new \InvalidArgumentException('Unsupported setting type.');
+        }
+        if (($type !== 'choice' && $choices !== []) || count($choices) > 100) {
+            throw new \InvalidArgumentException('Only choice settings can declare choices.');
+        }
+        foreach ($choices as $value => $choiceLabel) {
+            if (!is_string($value) || !preg_match('/^[a-z][a-z0-9_-]{0,99}$/D', $value)
+                || !is_string($choiceLabel) || trim($choiceLabel) === '' || strlen($choiceLabel) > 150) {
+                throw new \InvalidArgumentException('Invalid setting choice.');
+            }
         }
         if ($blocking && !$required) {
             throw new \InvalidArgumentException('Blocking settings must be required.');
@@ -45,6 +56,7 @@ final readonly class SettingDefinition
             public: $this->public,
             blocking: $this->blocking,
             description: $this->description,
+            choices: $this->choices,
         );
     }
 }

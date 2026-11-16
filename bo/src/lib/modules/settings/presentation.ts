@@ -2,7 +2,8 @@ export type BoSetting = {
   key: string;
   label: string;
   group: string;
-  type: 'string' | 'boolean' | 'email' | 'url';
+  type: 'string' | 'boolean' | 'email' | 'url' | 'choice';
+  choices?: Record<string, string>;
   required: boolean;
   secret: boolean;
   configured: boolean;

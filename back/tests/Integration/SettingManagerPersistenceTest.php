@@ -48,6 +48,8 @@ final class SettingManagerPersistenceTest extends TestCase
                 yield new SettingDefinition('application.name', 'Name', required: true, blocking: true);
                 yield new SettingDefinition('brevo.api_key', 'API key', required: true, secret: true);
                 yield new SettingDefinition('feature.enabled', 'Enabled', type: 'boolean');
+                yield new SettingDefinition('mails.transport', 'Transport', type: 'choice',
+                    choices: ['mailpit' => 'Mailpit', 'smtp4dev' => 'smtp4dev']);
             }
         };
 
@@ -78,6 +80,29 @@ final class SettingManagerPersistenceTest extends TestCase
             $settings->flush();
             $entityManager->clear();
             self::assertNull($settings->get('feature.enabled'));
+        } finally {
+            $entityManager->getConnection()->close();
+        }
+    }
+
+    public function testChoiceAcceptsOnlyDeclaredValuesAndPreservesStoredValueOnError(): void
+    {
+        [$entityManager, $settings] = $this->services();
+        try {
+            $settings->set('mails.transport', 'mailpit');
+            $settings->flush();
+            $entityManager->clear();
+            self::assertSame('mailpit', $settings->get('mails.transport'));
+            try {
+                $settings->set('mails.transport', 'attacker-supplied');
+                self::fail('Unknown transport must not be persisted.');
+            } catch (\InvalidArgumentException) {
+                self::assertSame('mailpit', $settings->get('mails.transport'));
+            }
+            $settings->set('mails.transport', 'smtp4dev');
+            $settings->flush();
+            $entityManager->clear();
+            self::assertSame('smtp4dev', $settings->get('mails.transport'));
         } finally {
             $entityManager->getConnection()->close();
         }

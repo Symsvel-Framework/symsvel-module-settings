@@ -91,6 +91,9 @@ final class SettingManager
         if ($definition->type === 'email' && $value !== '' && filter_var($value, FILTER_VALIDATE_EMAIL) === false) {
             throw new \InvalidArgumentException(sprintf('%s must be a valid email.', $definition->label));
         }
+        if ($definition->type === 'choice' && $value !== '' && !array_key_exists($value, $definition->choices)) {
+            throw new \InvalidArgumentException('Unknown setting choice.');
+        }
         if ($definition->type === 'url' && $value !== '' && filter_var($value, FILTER_VALIDATE_URL) === false) {
             throw new \InvalidArgumentException(sprintf('%s must be a valid URL.', $definition->label));
         }

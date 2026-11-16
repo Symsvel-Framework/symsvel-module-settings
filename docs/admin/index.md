@@ -31,3 +31,12 @@ au lieu de dupliquer leurs styles. Après une mise à jour réussie d'un
 paramètre, elle émet `symsvel:alerts-changed` afin que le shell BO
 rafraîchisse immédiatement les alertes d'administration sans quitter la page.
 Voir `symsvel-bo/docs/bo-ui.md`.
+
+
+## Listes de choix gérées par les modules (16/11/2026)
+
+Certains paramètres affichent désormais un menu déroulant, dont les
+valeurs sont fournies par le module propriétaire. Une valeur inconnue
+est refusée par l'API et ne remplace jamais l'ancienne. Pour Mails, les
+choix proviennent des transports installés, et ne contiennent pas les
+DSN ou identifiants privés.

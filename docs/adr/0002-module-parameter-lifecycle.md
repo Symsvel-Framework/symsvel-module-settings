@@ -41,3 +41,15 @@ Ce test utilise des définitions de fixture correspondant aux clés Mails : il *
 ## Correctif de compilation du conteneur (14/11/2026)
 
 Le compiler pass de propriété transmet la carte des propriétaires vérifiés au second argument du constructeur `SettingRegistry` via `Definition::setArgument(1, $owners)`. La variante avec la clé `'$owners'` produisait dans le conteneur compilé un argument nommé PHP invalide (`$owners:`). L'injection positionnelle conserve le contrôle strict des propriétaires et évite cette erreur de syntaxe. Le test unitaire vérifie la position injectée ; la compilation Symfony réelle, la CI et le crash-test de réinstallation Mails restent à valider.
+
+
+## Paramètres à choix limités (16/11/2026)
+
+Un module peut déclarer un paramètre de type `choice`, avec une liste
+`identifiant => libellé` contrôlée par son provider. Cette liste est une
+métadonnée non secrète de définition : l'inventaire la conserve et peut
+ainsi détecter les changements déclaratifs lors de l'installation ou
+mise à jour d'un module. Aucun mécanisme de sélection n'est codé dans
+Tooling, et les valeurs restent gérées exclusivement par Settings.
+La validation se fait dans `SettingManager`, jamais uniquement dans
+le navigateur. Le mécanisme est utilisé par `mails.transport`.

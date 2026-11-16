@@ -97,3 +97,23 @@ actions BO réelles, sans duplications dans le Core ou dans ACLs. Le runtime
 conserve les contrôles `BoAccessGate` déjà en place ; la déclaration
 n'accorde aucun droit automatiquement. Pas de migration ni de changement
 sur les routes. CI et CT XT requis.
+
+
+## Choix contraints de valeurs dans Settings (16/11/2026)
+
+`SettingDefinition(type: 'choice', choices: ['slug' => 'Libellé'])` permet à
+un module de proposer des valeurs contrôlées par son propre code, sans ajouter
+de règle métier dans Settings. Le registre qualifie la clé normalement et
+préserve les choix lors de `withKey()`. `SettingManager::set()` refuse
+côté PHP toute valeur absente des choix déclarés, même si une requête
+`PUT /apibo/settings/...` est forgée. La valeur `NULL` reste possible
+pour un paramètre facultatif ; une liste vide n'autorise aucune nouvelle
+valeur. La présentation BO n'envoie que les identifiants et libellés,
+jamais un DSN ni un secret. L'inventaire de Tooling contient les choix
+d'une définition `choice` sans valeurs persistées.
+
+Le BO rend un `select` HTML natif pour ce type, tandis que les champs
+existants gardent leur comportement. Ce contrat reste générique et permet
+à Mails d'exposer uniquement les transports nommés disponibles depuis
+ses providers. Tests : validation de choix côté PHP, persistance SQLite,
+métadonnées et formulaire assemblé. CT XT requis.

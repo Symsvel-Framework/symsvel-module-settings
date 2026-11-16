@@ -99,6 +99,15 @@
                   <select id={'setting-' + item.key} bind:value={drafts[item.key]}>
                     <option value="1">{t.enabled}</option><option value="0">{t.disabled}</option>
                   </select>
+                {:else if item.type === 'choice'}
+                  <select id={'setting-' + item.key} bind:value={drafts[item.key]}
+                    disabled={Object.keys(item.choices ?? {}).length === 0}
+                    required={item.required}>
+                    <option value="">{t.notSet}</option>
+                    {#each Object.entries(item.choices ?? {}) as [value, label] (value)}
+                      <option {value}>{label}</option>
+                    {/each}
+                  </select>
                 {:else}
                   <input id={'setting-' + item.key}
                     type={item.secret ? 'password' : (item.type === 'email' ? 'email' : (item.type === 'url' ? 'url' : 'text'))}
@@ -106,7 +115,7 @@
                     placeholder={item.secret && item.configured ? t.secret : t.notSet}
                     required={item.required} />
                 {/if}
-                <Button disabled={saving !== null || loading || (item.secret && item.configured && (drafts[item.key] ?? '') === '')} type="submit">
+                <Button disabled={saving !== null || loading || (item.type === 'choice' && Object.keys(item.choices ?? {}).length === 0) || (item.secret && item.configured && (drafts[item.key] ?? '') === '')} type="submit">
                   {saving === item.key ? t.saving : t.save}
                 </Button>
                   </form>
