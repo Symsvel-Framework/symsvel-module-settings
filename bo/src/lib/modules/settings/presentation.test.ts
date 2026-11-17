@@ -7,6 +7,7 @@ describe('settings BO assembled', () => {
   it('localizes messages without embedding strings in Svelte', () => {
     expect(settingsCopy('fr-FR').save).toBe('Enregistrer');
     expect(settingsCopy('en-US').save).toBe('Save');
+    expect(settingsCopy('es-ES').save).toBe('Enregistrer');
   });
   it('groups by declared group and retains null values', () => {
     const grouped = groupSettings([
