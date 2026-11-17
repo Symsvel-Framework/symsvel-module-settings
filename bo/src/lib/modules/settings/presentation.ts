@@ -41,7 +41,7 @@ const texts = {
 };
 export type SettingsCopy = (typeof texts)['fr'];
 export function settingsCopy(language: string | null): SettingsCopy {
-  return language?.toLowerCase().split('-')[0] === 'fr' ? texts.fr : texts.en;
+  return language?.toLowerCase().split('-')[0] === 'en' ? texts.en : texts.fr;
 }
 export function groupSettings(data: BoSetting[]): Record<string, BoSetting[]> {
   return [...data]
