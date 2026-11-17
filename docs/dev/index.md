@@ -131,3 +131,7 @@ possibilité de renseigner la valeur via `SettingManager`, qui reste
 responsable de la persistance. Le contrôle métier de non-changement
 après initialisation reste dans le module propriétaire, pas dans
 Settings. Utilisé par `languages.primary_language`.
+
+## Fallback des libellés BO (17/11/2026)
+
+Les libellés français sont la valeur de repli lorsque la langue d'interface n'a pas encore de traduction disponible ; l'anglais reste servi pour `en`. Les codes ISO enregistrés en base ne changent pas. Cette correction ne crée pas d'éditeur de traductions ni de lecteur de fichiers dynamiques ; le déploiement d'un tel mécanisme relève du chantier i18n dédié. Tests FR, EN et locale non traduite ajoutés ; CI et crash-test local à confirmer.
