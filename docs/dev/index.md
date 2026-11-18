@@ -135,3 +135,8 @@ Settings. Utilisé par `languages.primary_language`.
 ## Fallback des libellés BO (17/11/2026)
 
 Les libellés français sont la valeur de repli lorsque la langue d'interface n'a pas encore de traduction disponible ; l'anglais reste servi pour `en`. Les codes ISO enregistrés en base ne changent pas. Cette correction ne crée pas d'éditeur de traductions ni de lecteur de fichiers dynamiques ; le déploiement d'un tel mécanisme relève du chantier i18n dédié. Tests FR, EN et locale non traduite ajoutés ; CI et crash-test local à confirmer.
+
+
+## Traductions BO du module (18/11/2026)
+
+`bo/src/lib/translations/<lang>.ts` fournit les valeurs de référence de Settings, destinées à `bo/src/lib/translations/settings/<lang>.ts` dans l'hôte installé. Languages persiste les clés `bo.settings.<clé>` après migrations et protège les personnalisations administrateur. Tests et CT XT requis.

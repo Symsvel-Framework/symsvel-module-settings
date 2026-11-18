@@ -1,3 +1,5 @@
+import { generatedTranslation } from '../../i18n/generated-translations';
+
 export type BoSetting = {
   key: string;
   label: string;
@@ -41,7 +43,10 @@ const texts = {
 };
 export type SettingsCopy = (typeof texts)['fr'];
 export function settingsCopy(language: string | null): SettingsCopy {
-  return language?.toLowerCase().split('-')[0] === 'en' ? texts.en : texts.fr;
+  const base = language?.toLowerCase().split('-')[0] === 'en' ? texts.en : texts.fr;
+  return Object.fromEntries(Object.entries(base).map(([key, value]) => [
+    key, generatedTranslation(language, 'bo.settings.' + key) ?? value
+  ])) as SettingsCopy;
 }
 export function groupSettings(data: BoSetting[]): Record<string, BoSetting[]> {
   return [...data]
