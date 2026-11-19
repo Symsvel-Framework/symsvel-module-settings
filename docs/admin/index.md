@@ -48,3 +48,9 @@ Les définitions de modules peuvent signaler un paramètre en
 **lecture seule** : son affichage est conservé, mais l'enregistrement
 est désactivé et l'API refuse les écritures directes. La langue
 principale définie par le Setup utilise ce mécanisme.
+
+### Normalisation Design System et sauvegarde ciblée BO (19/11/2026)
+
+Les types `boolean` et `choice` de Settings utilisent désormais `Dropdown.svelte` natif du BO (palette clair/sombre, navigation clavier), avec les valeurs déclarées par chaque module via `choices`. Les types `email`, `url`, `string` et `secret` conservent les champs HTML adaptés. Les surfaces, accordéons, entrées, bordures, textes secondaires et focus consomment les jetons `--bo-*`, sans palette de module parallèle.
+
+Une sauvegarde réussie actualise **uniquement le paramètre modifié** dans l'état Svelte et envoie `symsvel:alerts-changed`. Elle ne rappelle plus `GET /apibo/settings` pour remplacer tous les brouillons : la saisie non validée d'un autre paramètre est préservée, ainsi que l'accordéon et le scroll. Une erreur conserve la saisie de la ligne. Les valeurs `secret` restent **toujours null** dans l'état affichable et leur saisie est vidée après succès ; seul `configured` est recalculé. Le bouton Actualiser permet une resynchronisation explicite. L'API et ses ACL restent inchangées. Des tests vérifient l'absence de fuite de secrets et l'état confirmé. CI et CT XT requis.

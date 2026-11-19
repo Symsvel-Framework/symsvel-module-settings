@@ -48,6 +48,14 @@ export function settingsCopy(language: string | null): SettingsCopy {
     key, generatedTranslation(language, 'bo.settings.' + key) ?? value
   ])) as SettingsCopy;
 }
+/** Update the confirmed BO value without reloading unrelated settings or leaking secrets. */
+export function applySavedSetting(item: BoSetting, draft: string): BoSetting {
+  if (item.secret) {
+    return { ...item, value: null, configured: draft !== '' || item.configured };
+  }
+  return { ...item, value: draft === '' ? null : draft, configured: draft !== '' };
+}
+
 export function groupSettings(data: BoSetting[]): Record<string, BoSetting[]> {
   return [...data]
     .sort((a, b) => a.group.localeCompare(b.group) || a.label.localeCompare(b.label))

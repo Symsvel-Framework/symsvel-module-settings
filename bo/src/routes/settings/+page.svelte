@@ -2,12 +2,13 @@
   import { onMount } from 'svelte';
   import Button from '../../../../components/Button.svelte';
   import Alert from '../../../../components/Alert.svelte';
+  import Dropdown from '../../../../components/Dropdown.svelte';
   import { goto } from '$app/navigation';
   import { resolve } from '$app/paths';
   import { ApiError } from '../../../../api/client';
   import { uiLanguage } from '../../../../api/locales';
   import { boApi } from '../../../../api/session';
-  import { settingsCopy, settingsByModule, type BoSetting, type BoSettingsResponse } from '../../presentation';
+  import { settingsCopy, settingsByModule, applySavedSetting, type BoSetting, type BoSettingsResponse } from '../../presentation';
 
   let loading = $state(false);
   let saving = $state<string | null>(null);
@@ -62,8 +63,11 @@
         method: 'PUT',
         body: JSON.stringify({ value: item.type === 'boolean' ? draft === '1' : (draft === '' ? null : draft) })
       });
+      settings = settings.map((current) => current.key === item.key
+        ? applySavedSetting(current, draft)
+        : current);
+      if (item.secret) drafts = { ...drafts, [item.key]: '' };
       message = t.saved;
-      await reload();
       window.dispatchEvent(new Event('symsvel:alerts-changed'));
     } catch (cause) {
       error = explain(cause);
@@ -97,18 +101,20 @@
                   {#if item.editable === false}<small>{t.readOnly}</small>{/if}
                 </div>
                 {#if item.type === 'boolean'}
-                  <select id={'setting-' + item.key} bind:value={drafts[item.key]} disabled={item.editable === false}>
-                    <option value="1">{t.enabled}</option><option value="0">{t.disabled}</option>
-                  </select>
+                  <Dropdown value={drafts[item.key] ?? ''}
+                    options={[{ value: '1', label: t.enabled }, { value: '0', label: t.disabled }]}
+                    label={item.label} placeholder={t.notSet}
+                    onChange={(value) => { drafts = { ...drafts, [item.key]: value }; }}
+                    disabled={item.editable === false || saving !== null || loading} />
                 {:else if item.type === 'choice'}
-                  <select id={'setting-' + item.key} bind:value={drafts[item.key]}
-                    disabled={item.editable === false || Object.keys(item.choices ?? {}).length === 0}
-                    required={item.required}>
-                    <option value="">{t.notSet}</option>
-                    {#each Object.entries(item.choices ?? {}) as [value, label] (value)}
-                      <option {value}>{label}</option>
-                    {/each}
-                  </select>
+                  <Dropdown value={drafts[item.key] ?? ''}
+                    options={[
+                      { value: '', label: t.notSet },
+                      ...Object.entries(item.choices ?? {}).map(([value, label]) => ({ value, label }))
+                    ]}
+                    label={item.label}
+                    onChange={(value) => { drafts = { ...drafts, [item.key]: value }; }}
+                    disabled={item.editable === false || Object.keys(item.choices ?? {}).length === 0 || saving !== null || loading} />
                 {:else}
                   <input id={'setting-' + item.key}
                     type={item.secret ? 'password' : (item.type === 'email' ? 'email' : (item.type === 'url' ? 'url' : 'text'))}
@@ -117,7 +123,7 @@
                     required={item.required} disabled={item.editable === false} />
                 {/if}
                 {#if item.editable !== false}
-                  <Button disabled={saving !== null || loading || (item.type === 'choice' && Object.keys(item.choices ?? {}).length === 0) || (item.secret && item.configured && (drafts[item.key] ?? '') === '')} type="submit">
+                  <Button disabled={saving !== null || loading || (item.type === 'choice' && Object.keys(item.choices ?? {}).length === 0) || (item.secret && item.configured && (drafts[item.key] ?? '') === '') || (item.required && item.type === 'choice' && (drafts[item.key] ?? '') === '')} type="submit">
                     {saving === item.key ? t.saving : t.save}
                   </Button>
                 {/if}
@@ -131,22 +137,25 @@
 
 <style>
   .settings { max-width: 1200px; margin: 0 auto; }
-  .panel { padding: 28px; background: white; border: 1px solid #e2e7ee; border-radius: 14px; }
+  .panel { padding: 28px; background: var(--bo-surface); color: var(--bo-text); border: 1px solid var(--bo-border); border-radius: 14px; }
   .heading { display: flex; align-items: start; justify-content: space-between; gap: 24px; }
   h1 { margin: 0; } h2 { margin: 28px 0 12px; text-transform: capitalize; }
-  p, small { color: #667085; }
-  .module-group { border: 1px solid #e2e7ee; border-radius: 10px; margin: 12px 0; overflow: hidden; }
+  p, small { color: var(--bo-muted); }
+  .module-group { border: 1px solid var(--bo-border); border-radius: 10px; margin: 12px 0; overflow: hidden; }
   .module-group summary { display: flex; align-items: center; justify-content: space-between; cursor: pointer;
-    padding: 16px 18px; font-size: 1.05rem; font-weight: 700; text-transform: capitalize; background: #f8fafc; }
-  .module-group summary:hover, .module-group summary:focus-visible { background: #eef3fb; }
-  .module-group summary small { font-size: .85rem; font-weight: 600; color: #667085; }
-  .module-group[open] summary { border-bottom: 1px solid #e2e7ee; }
+    padding: 16px 18px; font-size: 1.05rem; font-weight: 700; text-transform: capitalize; background: var(--bo-surface-muted); }
+  .module-group summary:hover { background: var(--bo-surface); }
+  .module-group summary:focus-visible { background: var(--bo-surface-muted); outline: 2px solid var(--bo-focus); outline-offset: -2px; }
+  .module-group summary small { font-size: .85rem; font-weight: 600; color: var(--bo-muted); }
+  .module-group[open] summary { border-bottom: 1px solid var(--bo-border); }
   .module-group-fields { padding: 0 18px; }
   .setting { display: grid; grid-template-columns: minmax(200px, 1fr) minmax(190px, 1fr) auto;
-    gap: 18px; align-items: center; padding: 18px 0; border-top: 1px solid #edf0f4; }
+    gap: 18px; align-items: center; padding: 18px 0; border-top: 1px solid var(--bo-border); }
   .setting label { display: block; font-weight: 700; }
   .setting small { display: block; font-size: .78rem; margin-top: 5px; }
   .setting p { font-size: .86rem; margin: 5px 0; }
-  input, select { padding: 12px; border: 1px solid #ccd4df; border-radius: 8px; font: inherit; min-width: 0; }
+  .setting input { width: 100%; padding: 12px; border: 1px solid var(--bo-border); border-radius: 8px; font: inherit; min-width: 0; background: var(--bo-input); color: var(--bo-text); }
+  .setting input:focus-visible { outline: 2px solid var(--bo-focus); outline-offset: 2px; }
+  .setting :global(.bo-dropdown) { width: 100%; }
   @media (max-width: 800px) { .setting { grid-template-columns: 1fr; } .panel { padding: 18px; } }
 </style>
