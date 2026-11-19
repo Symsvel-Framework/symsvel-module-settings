@@ -135,7 +135,7 @@
                     required={item.required} disabled={item.editable === false} />
                 {/if}
                 {#if item.editable !== false}
-                  <Button disabled={saving !== null || loading || (item.type === 'choice' && Object.keys(item.choices ?? {}).length === 0) || (item.secret && item.configured && (drafts[item.key] ?? '') === '') || (item.required && item.type === 'choice' && (drafts[item.key] ?? '') === '')} type="submit">
+                  <Button variant="success" disabled={saving !== null || loading || (item.type === 'choice' && Object.keys(item.choices ?? {}).length === 0) || (item.secret && item.configured && (drafts[item.key] ?? '') === '') || (item.required && item.type === 'choice' && (drafts[item.key] ?? '') === '')} type="submit">
                     {saving === item.key ? t.saving : t.save}
                   </Button>
                 {/if}

@@ -87,3 +87,10 @@ Le BO hôte relance uniquement les sondes des modules installés : Countries
 apparaît ou disparaît immédiatement du menu selon le réglage et les ACL.
 Le paramètre demeure propriétaire de Languages ; Settings ne connaît
 ni n'instancie le module Countries. CI et CT sur XT requis.
+
+### Conventions de couleur des boutons (19/11/2026)
+
+Enregistrer un paramètre est une validation (vert). Les boutons Actualiser et les contrôles de saisie restent neutres ; aucun rechargement n'est introduit.
+Les couleurs et l'état désactivé proviennent des variantes natives du BO hôte,
+voir `symsvel-bo/docs/dev/bo-components.md`, sans CSS de module additionnel.
+CI et CT visuel clair/sombre requis.
