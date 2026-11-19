@@ -56,3 +56,25 @@ Les types `boolean` et `choice` de Settings utilisent désormais `Dropdown.svelt
 Une sauvegarde réussie actualise **uniquement le paramètre modifié** dans l'état Svelte et envoie `symsvel:alerts-changed`. Elle ne rappelle plus `GET /apibo/settings` pour remplacer tous les brouillons : la saisie non validée d'un autre paramètre est préservée, ainsi que l'accordéon et le scroll. Une erreur conserve la saisie de la ligne. Les valeurs `secret` restent **toujours null** dans l'état affichable et leur saisie est vidée après succès ; seul `configured` est recalculé. Le bouton Actualiser permet une resynchronisation explicite. L'API et ses ACL restent inchangées. Des tests vérifient l'absence de fuite de secrets et l'état confirmé. CI et CT XT requis.
 
 Les libellés de champs texte conservent leur association HTML `for/id` ; pour les deux champs Dropdown, un libellé visuel distinct est conservé et l'association accessible passe par la prop `label` du composant, sans `for` orphelin.
+
+### Correction des accordéons et des menus de choix (19/11/2026)
+
+Le groupe de paramètres ouvert est désormais piloté par `bind:open` sur
+chaque `details` natif, avec un état mémorisé par identifiant de module.
+Le premier groupe est ouvert uniquement lors du chargement initial ; une
+sauvegarde de valeur ne réinitialise plus le groupe choisi. La propriété HTML
+`name` conserve l'exclusivité native entre accordéons. Une actualisation
+explicite conserve le groupe sélectionné s'il existe encore.
+
+Les menus `Dropdown` des paramètres `boolean` et `choice` ne doivent pas
+être coupés par les panneaux : le conteneur des accordéons utilise
+`overflow: visible`, et `:focus-within` place temporairement l'accordéon
+actif devant ses voisins. Les coins du résumé restent arrondis lorsque le
+panneau est fermé. Aucun changement du composant `Dropdown` commun,
+des APIs ni des règles Settings/Mails.
+
+Tests de non-régression du contrat Svelte/CSS ajoutés ; vérifier sur XT :
+ouvrir un groupe non initial, modifier puis enregistrer une valeur, constater
+que le groupe et la position de défilement restent inchangés ; ouvrir le
+transport Mails au-dessus des groupes suivants et sélectionner une option.
+Validation complète soumise aux CI et à ce crash-test navigateur.

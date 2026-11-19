@@ -14,6 +14,7 @@
   let saving = $state<string | null>(null);
   let settings = $state<BoSetting[]>([]);
   let drafts = $state<Record<string, string>>({});
+  let expandedGroups = $state<Record<string, boolean>>({});
   let error = $state('');
   let message = $state('');
   const language = $derived($uiLanguage ?? (typeof navigator === 'undefined' ? 'en' : navigator.language));
@@ -38,6 +39,10 @@
     try {
       const response = await boApi<BoSettingsResponse>('/apibo/settings');
       settings = Array.isArray(response.data) ? response.data : [];
+      const groupNames = Object.keys(settingsByModule(settings));
+      expandedGroups = Object.fromEntries(groupNames.map((name, index) => [
+        name, expandedGroups[name] ?? index === 0
+      ]));
       drafts = Object.fromEntries(settings.map((item) => [
         item.key, item.secret ? '' : (item.value ?? '')
       ]));
@@ -87,8 +92,8 @@
           {#if message}<Alert kind="success">{message}</Alert>{/if}
           {#if loading}<p role="status">{t.loading}</p>{/if}
           {#if !loading && settings.length === 0 && !error}<p>{t.empty}</p>{/if}
-          {#each Object.entries(groups) as [group, items], index (group)}
-            <details class="module-group" name="symsvel-settings-groups" open={index === 0}>
+          {#each Object.entries(groups) as [group, items] (group)}
+            <details class="module-group" name="symsvel-settings-groups" bind:open={expandedGroups[group]}>
               <summary><span>{group}</span><small>{items.length}</small></summary>
               <div class="module-group-fields">
                 {#each items as item (item.key)}
@@ -145,13 +150,14 @@
   .heading { display: flex; align-items: start; justify-content: space-between; gap: 24px; }
   h1 { margin: 0; } h2 { margin: 28px 0 12px; text-transform: capitalize; }
   p, small { color: var(--bo-muted); }
-  .module-group { border: 1px solid var(--bo-border); border-radius: 10px; margin: 12px 0; overflow: hidden; }
+  .module-group { position: relative; border: 1px solid var(--bo-border); border-radius: 10px; margin: 12px 0; overflow: visible; }
+  .module-group:focus-within { z-index: 1; }
   .module-group summary { display: flex; align-items: center; justify-content: space-between; cursor: pointer;
-    padding: 16px 18px; font-size: 1.05rem; font-weight: 700; text-transform: capitalize; background: var(--bo-surface-muted); }
+    padding: 16px 18px; font-size: 1.05rem; font-weight: 700; text-transform: capitalize; background: var(--bo-surface-muted); border-radius: 9px; }
   .module-group summary:hover { background: var(--bo-surface); }
   .module-group summary:focus-visible { background: var(--bo-surface-muted); outline: 2px solid var(--bo-focus); outline-offset: -2px; }
   .module-group summary small { font-size: .85rem; font-weight: 600; color: var(--bo-muted); }
-  .module-group[open] summary { border-bottom: 1px solid var(--bo-border); }
+  .module-group[open] summary { border-bottom: 1px solid var(--bo-border); border-radius: 9px 9px 0 0; }
   .module-group-fields { padding: 0 18px; }
   .setting { display: grid; grid-template-columns: minmax(200px, 1fr) minmax(190px, 1fr) auto;
     gap: 18px; align-items: center; padding: 18px 0; border-top: 1px solid var(--bo-border); }
