@@ -94,7 +94,11 @@
                 {#each items as item (item.key)}
                   <form class="setting" onsubmit={(event) => { event.preventDefault(); void save(item); }}>
                 <div>
-                  <label for={'setting-' + item.key}>{item.label}</label>
+                  {#if item.type === 'boolean' || item.type === 'choice'}
+                    <span class="field-label">{item.label}</span>
+                  {:else}
+                    <label for={'setting-' + item.key}>{item.label}</label>
+                  {/if}
                   <small>{item.key} · {item.required ? t.required : t.optional}</small>
                   {#if item.description}<p>{item.description}</p>{/if}
                   {#if item.secret && item.configured}<small>{t.secret} · {t.configured}</small>{/if}
@@ -151,7 +155,7 @@
   .module-group-fields { padding: 0 18px; }
   .setting { display: grid; grid-template-columns: minmax(200px, 1fr) minmax(190px, 1fr) auto;
     gap: 18px; align-items: center; padding: 18px 0; border-top: 1px solid var(--bo-border); }
-  .setting label { display: block; font-weight: 700; }
+  .setting label, .setting .field-label { display: block; font-weight: 700; }
   .setting small { display: block; font-size: .78rem; margin-top: 5px; }
   .setting p { font-size: .86rem; margin: 5px 0; }
   .setting input { width: 100%; padding: 12px; border: 1px solid var(--bo-border); border-radius: 8px; font: inherit; min-width: 0; background: var(--bo-input); color: var(--bo-text); }
