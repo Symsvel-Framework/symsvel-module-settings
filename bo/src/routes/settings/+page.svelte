@@ -74,6 +74,9 @@
       if (item.secret) drafts = { ...drafts, [item.key]: '' };
       message = t.saved;
       window.dispatchEvent(new Event('symsvel:alerts-changed'));
+      if (item.key === 'languages.multilingual') {
+        window.dispatchEvent(new Event('symsvel:navigation-changed'));
+      }
     } catch (cause) {
       error = explain(cause);
     } finally {

@@ -10,6 +10,11 @@ describe('Settings accordion and dropdown integration contract', () => {
     expect(source).not.toContain('open={index === 0}');
   });
 
+  it('refreshes conditional BO navigation only when multilingual mode changes', () => {
+    expect(source).toContain("item.key === 'languages.multilingual'");
+    expect(source).toContain("new Event('symsvel:navigation-changed')");
+  });
+
   it('does not clip a dropdown or place later accordions above the active one', () => {
     expect(source).toMatch(/\.module-group \{[^}]*overflow: visible;/s);
     expect(source).toContain('.module-group:focus-within { z-index: 1; }');

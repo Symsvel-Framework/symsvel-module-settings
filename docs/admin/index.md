@@ -78,3 +78,12 @@ ouvrir un groupe non initial, modifier puis enregistrer une valeur, constater
 que le groupe et la position de défilement restent inchangés ; ouvrir le
 transport Mails au-dessus des groupes suivants et sélectionner une option.
 Validation complète soumise aux CI et à ce crash-test navigateur.
+
+### Actualisation de navigation sans rechargement (19/11/2026)
+
+Après l'enregistrement de `languages.multilingual`, Settings émet
+`symsvel:navigation-changed` en plus de l'actualisation des alertes.
+Le BO hôte relance uniquement les sondes des modules installés : Countries
+apparaît ou disparaît immédiatement du menu selon le réglage et les ACL.
+Le paramètre demeure propriétaire de Languages ; Settings ne connaît
+ni n'instancie le module Countries. CI et CT sur XT requis.
