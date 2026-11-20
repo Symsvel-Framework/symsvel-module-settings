@@ -1,12 +1,63 @@
 name: QA
 on: [push, pull_request]
+concurrency:
+  group: settings-qa-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, ARM64, symsvel]
     steps:
       - uses: actions/checkout@v4
-      - uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.4'
+      - name: Verify preinstalled PHP 8.4
+        run: |
+          php -v
+          php -r 'if (PHP_VERSION_ID < 80400 || PHP_VERSION_ID >= 80500) { exit(1); }'
       - run: composer install --no-interaction --prefer-dist
+      - name: Lint PHP sources and tests
+        run: find back/src back/tests -type f -name '*.php' -print0 | xargs -0 -r -n 1 php -l
+      - name: Require SQLite driver for integration tests
+        run: php -r 'if (!extension_loaded("pdo_sqlite")) { fwrite(STDERR, "pdo_sqlite is required for CI integration tests\\n"); exit(1); }'
       - run: composer qa
+
+  bo-integration:
+    runs-on: [self-hosted, linux, ARM64, symsvel]
+    steps:
+      - name: Checkout Settings module
+        uses: actions/checkout@v4
+      - name: Checkout BO host on dev
+        uses: actions/checkout@v4
+        with:
+          repository: Symsvel-Framework/symsvel-bo
+          ref: dev
+          path: assembled-bo
+          token: ${{ secrets.SYMSVEL_READ_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: assembled-bo/package-lock.json
+      - name: Assemble Settings BO route like Tooling
+        run: |
+          mkdir -p assembled-bo/src/lib/modules/settings/routes/settings
+          mkdir -p assembled-bo/src/routes/settings
+          cp bo/src/lib/modules/settings/*.ts assembled-bo/src/lib/modules/settings/
+          cp bo/src/routes/settings/+page.svelte assembled-bo/src/lib/modules/settings/routes/settings/+page.svelte
+          cat > assembled-bo/src/routes/settings/+page.svelte <<'ROUTE'
+          <script lang="ts">
+            import ModulePage from '#lib/modules/settings/routes/settings/+page.svelte';
+          </script>
+          <ModulePage />
+          ROUTE
+      - name: Install BO dependencies
+        working-directory: assembled-bo
+        run: npm ci --no-audit --no-fund
+      - name: Match BO formatting conventions
+        working-directory: assembled-bo
+        run: npm run format
+      - name: Validate assembled BO Settings
+        working-directory: assembled-bo
+        run: |
+          npm run check
+          npm run lint
+          npm run build
+          npm run test:unit -- --run

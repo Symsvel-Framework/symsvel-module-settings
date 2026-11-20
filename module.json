@@ -1,8 +1,12 @@
 {
     "schema": 1,
     "name": "Settings",
-    "dependencies": {},
-    "tables": [],
+    "dependencies": {
+        "acls": "*"
+    },
+    "tables": [
+        "symsvel_settings"
+    ],
     "components": {
         "back": "back",
         "bo": "bo"
