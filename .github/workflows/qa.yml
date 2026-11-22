@@ -5,10 +5,16 @@ concurrency:
   cancel-in-progress: true
 jobs:
   test:
-    runs-on: [self-hosted, linux, ARM64, symsvel]
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - name: Verify preinstalled PHP 8.4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_sqlite, pdo_pgsql, pdo_mysql, sodium, intl
+          coverage: none
+          tools: composer:v2
+      - name: Verify PHP 8.4
         run: |
           php -v
           php -r 'if (PHP_VERSION_ID < 80400 || PHP_VERSION_ID >= 80500) { exit(1); }'
@@ -20,7 +26,7 @@ jobs:
       - run: composer qa
 
   bo-integration:
-    runs-on: [self-hosted, linux, ARM64, symsvel]
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout Settings module
         uses: actions/checkout@v4
@@ -51,6 +57,9 @@ jobs:
       - name: Install BO dependencies
         working-directory: assembled-bo
         run: npm ci --no-audit --no-fund
+      - name: Install Chromium and Ubuntu dependencies
+        working-directory: assembled-bo
+        run: npx playwright install --with-deps chromium
       - name: Match BO formatting conventions
         working-directory: assembled-bo
         run: npm run format
