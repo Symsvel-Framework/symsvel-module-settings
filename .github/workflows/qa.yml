@@ -36,7 +36,7 @@ jobs:
           repository: Symsvel-Framework/symsvel-bo
           ref: dev
           path: assembled-bo
-          token: ${{ secrets.SYMSVEL_READ_TOKEN }}
+          token: ${{ github.token }}
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
