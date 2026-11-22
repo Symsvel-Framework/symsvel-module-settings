@@ -12,6 +12,12 @@ Module natif de paramètres applicatifs, issu du contrat XCore Settings et adapt
 
 Voir `docs/dev/index.md` pour le contrat technique et les limites.
 
+## Intégration continue GitHub-hosted (22/11/2026)
+
+Le workflow public `.github/workflows/qa.yml` utilise désormais **GitHub-hosted Ubuntu 24.04** au lieu des runners Docker du mainteneur. Les tests PHP/SQLite et l'intégration BO sont conservés. Les tests d'interface installent Chromium et ses dépendances système lorsque nécessaire.
+
+Les runners auto-hébergés sont réservés à `symsvel-packages` et `symsvel-recipes`, qui restent privés. Une CI verte ne dispense pas des crash-tests locaux.
+
 ## Licence MIT et contributions
 
 Ce dépôt est distribué sous [licence MIT](LICENSE). Le code peut être utilisé, modifié et redistribué, y compris dans des projets commerciaux ou propriétaires, dans les conditions de cette licence (notamment la conservation de la notice de copyright et de licence).
