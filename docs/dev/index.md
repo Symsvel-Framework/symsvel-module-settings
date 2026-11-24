@@ -140,3 +140,7 @@ Les libellés français sont la valeur de repli lorsque la langue d'interface n'
 ## Traductions BO du module (18/11/2026)
 
 `bo/src/lib/translations/<lang>.ts` fournit les valeurs de référence de Settings, destinées à `bo/src/lib/translations/settings/<lang>.ts` dans l'hôte installé. Languages persiste les clés `bo.settings.<clé>` après migrations et protège les personnalisations administrateur. Tests et CT XT requis.
+
+## Branding et sécurité
+
+Les écrans du module lisent le nom public via `getProjectBrand()` du BO et affichent `$brandName`. Le layout effectue la requête ; le module ne crée ni état ni requête indépendante. L'intégration est vérifiée par la QA ; le CT doit vérifier les titres avec un nom de projet personnalisé. La QA PHP exécute également `composer audit --locked` après installation, sans exclusion d'avis.

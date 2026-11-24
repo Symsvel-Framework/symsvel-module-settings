@@ -18,12 +18,6 @@ Module natif de paramètres applicatifs, issu du contrat XCore Settings et adapt
 
 Voir `docs/dev/index.md` pour le contrat technique et les limites.
 
-## Distribution stable v1.0.0 (20/11/2026)
-
-Le manifeste Composer du tag stable déclare exclusivement des contraintes `^1.0` pour ses dépendances SymSvel : `symsvel-framework/module-acls`. Les références `dev-dev` restent réservées à la branche `dev` et à l'installation de maintenance avec `--dev`. Le tag `v1.0.0` n'est à publier **qu'après** le tag stable de chaque dépendance, son indexation dans Satis et la réussite des contrôles CI ; aucune release n'est produite par ce commit.
-
----
-
 ## Intégration continue GitHub-hosted (22/11/2026)
 
 Le workflow public `.github/workflows/qa.yml` utilise désormais **GitHub-hosted Ubuntu 24.04** au lieu des runners Docker du mainteneur. Les tests PHP/SQLite et l'intégration BO sont conservés. Les tests d'interface installent Chromium et ses dépendances système lorsque nécessaire.
@@ -43,3 +37,7 @@ Ce dépôt est distribué sous [licence MIT](LICENSE). Le code peut être utilis
 SymSvel est un projet en cours de développement. Pour contribuer, proposer une amélioration ou échanger avec le mainteneur : **[xavier@xavier-tezza.fr](mailto:xavier@xavier-tezza.fr)**.
 
 SymSvel vous est utile et vous souhaitez me remercier ? **Offrez-moi une bière ! 🍺** (lien PayPal à compléter avant l'ouverture publique).
+
+## Promotion stable (24/11/2026)
+
+Les contraintes Composer de publication sont stables (`^1.0`), sans modifier le canal `dev`. Publier après les dépendances, leur indexation et les CI vertes. CT stable distinct.
