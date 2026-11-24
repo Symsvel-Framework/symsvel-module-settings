@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { getProjectBrand } from '../../lib/branding';
+  const brandName = getProjectBrand();
   import { onMount } from 'svelte';
   import Button from '../../../../components/Button.svelte';
   import Alert from '../../../../components/Alert.svelte';
@@ -85,7 +87,7 @@
   }
 </script>
 
-<svelte:head><title>{t.title} | SymSvel BO</title></svelte:head>
+<svelte:head><title>{t.title} | {$brandName} BO</title></svelte:head>
 <div class="settings">
         <section class="panel">
           <div class="heading"><div><h1>{t.heading}</h1><p>{t.intro}</p></div>
