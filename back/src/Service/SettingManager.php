@@ -26,8 +26,11 @@ final class SettingManager
         if ($definition === null) {
             throw new \InvalidArgumentException(sprintf('Unknown setting "%s".', $key));
         }
+        if ($definition->forcedValue !== null) {
+            return $definition->forcedValue;
+        }
         $value = ($this->pending[$key] ?? $this->repository->findOneBy(['key' => $key]))?->getValue();
-        return $value !== null && $definition->secret ? $this->cipher->decrypt($value) : $value;
+        return $value !== null && $definition->secret ? $this->cipher->decrypt($value) : ($value ?? $definition->defaultValue);
     }
 
     public function set(string $key, mixed $value): void
@@ -37,6 +40,9 @@ final class SettingManager
             throw new \InvalidArgumentException(sprintf('Unknown setting "%s".', $key));
         }
         $normalized = $this->normalize($definition, $value);
+        if ($definition->forcedValue !== null && $normalized !== $definition->forcedValue) {
+            throw new \InvalidArgumentException('Setting value is enforced by its module.');
+        }
         $setting = $this->pending[$key] ?? $this->repository->findOneBy(['key' => $key]);
         if ($setting === null) {
             $setting = new Setting($key);
@@ -53,7 +59,7 @@ final class SettingManager
         return array_values(array_filter(
             $this->registry->all(),
             static fn (SettingDefinition $definition): bool => $definition->required
-                && trim((string) (($stored[$definition->key] ?? null)?->getValue() ?? '')) === '',
+                && trim((string) ($definition->forcedValue ?? ($stored[$definition->key] ?? null)?->getValue() ?? $definition->defaultValue ?? '')) === '',
         ));
     }
 
