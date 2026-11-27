@@ -19,6 +19,8 @@ final readonly class SettingDefinition
         /** @var array<string, string> value => display label; module-owned, never writable by BO. */
         public array $choices = [],
         public bool $editable = true,
+        public ?string $defaultValue = null,
+        public ?string $forcedValue = null,
     ) {
         if ($key === '' || $key !== trim($key) || strlen($key) > 190) {
             throw new \InvalidArgumentException('Invalid setting definition key.');
@@ -41,7 +43,36 @@ final readonly class SettingDefinition
         if ($secret && $public) {
             throw new \InvalidArgumentException('Secret settings cannot be public.');
         }
+        if ($secret && ($defaultValue !== null || $forcedValue !== null)) {
+            throw new \InvalidArgumentException('Secret settings cannot declare values.');
+        }
+        if ($defaultValue !== null && !$required) {
+            throw new \InvalidArgumentException('Default values require a required setting.');
+        }
+        if ($forcedValue !== null && $editable) {
+            throw new \InvalidArgumentException('Forced settings must be read-only.');
+        }
+        foreach ([$defaultValue, $forcedValue] as $declaredValue) {
+            if ($declaredValue !== null && !$this->isValidDeclaredValue($declaredValue)) {
+                throw new \InvalidArgumentException('Invalid declared setting value.');
+            }
+        }
     }
+    private function isValidDeclaredValue(string $value): bool
+    {
+        if ($value === '' || trim($value) !== $value) {
+            return false;
+        }
+
+        return match ($this->type) {
+            'boolean' => in_array($value, ['0', '1'], true),
+            'choice' => array_key_exists($value, $this->choices),
+            'email' => filter_var($value, FILTER_VALIDATE_EMAIL) !== false,
+            'url' => filter_var($value, FILTER_VALIDATE_URL) !== false,
+            default => true,
+        };
+    }
+
     /**
      * Returns a qualified copy without mutating the provider's declaration.
      */
@@ -59,6 +90,8 @@ final readonly class SettingDefinition
             description: $this->description,
             choices: $this->choices,
             editable: $this->editable,
+            defaultValue: $this->defaultValue,
+            forcedValue: $this->forcedValue,
         );
     }
 }
