@@ -43,6 +43,54 @@ final class SettingDefinitionTest extends TestCase
         self::assertFalse($setting->withKey('languages.primary_language')->editable);
     }
 
+    public function testDeclaredValuesSurviveQualification(): void
+    {
+        $definition = new SettingDefinition('mode', 'Mode', type: 'choice', required: true,
+            choices: ['keep' => 'Keep', 'delete' => 'Delete'], editable: false,
+            defaultValue: 'keep', forcedValue: 'keep');
+        $qualified = $definition->withKey('example.mode');
+        self::assertSame('keep', $qualified->defaultValue);
+        self::assertSame('keep', $qualified->forcedValue);
+        self::assertFalse($qualified->editable);
+    }
+
+    public function testInvalidDefaultRejected(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        new SettingDefinition('enabled', 'Enabled', type: 'boolean', required: true, defaultValue: 'yes');
+    }
+
+    public function testDefaultRequiresNonNullableSetting(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        new SettingDefinition('enabled', 'Enabled', type: 'boolean', defaultValue: '1');
+    }
+
+    public function testForcedValueCannotBeEditable(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        new SettingDefinition('mode', 'Mode', forcedValue: 'keep');
+    }
+
+    public function testSecretCannotDeclareDefault(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        new SettingDefinition('token', 'Token', required: true, secret: true, defaultValue: 'example');
+    }
+
+    public function testSecretCannotDeclareForcedValue(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        new SettingDefinition('token', 'Token', secret: true, editable: false, forcedValue: 'example');
+    }
+
+    public function testForcedChoiceMustBeDeclared(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        new SettingDefinition('mode', 'Mode', type: 'choice', choices: ['keep' => 'Keep'],
+            editable: false, forcedValue: 'delete');
+    }
+
     public function testRejectsUnknownType(): void
     {
         $this->expectException(\InvalidArgumentException::class);

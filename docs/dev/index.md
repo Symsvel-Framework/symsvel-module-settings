@@ -144,3 +144,16 @@ Les libellés français sont la valeur de repli lorsque la langue d'interface n'
 ## Branding et sécurité
 
 Les écrans du module lisent le nom public via `getProjectBrand()` du BO et affichent `$brandName`. Le layout effectue la requête ; le module ne crée ni état ni requête indépendante. L'intégration est vérifiée par la QA ; le CT doit vérifier les titres avec un nom de projet personnalisé. La QA PHP exécute également `composer audit --locked` après installation, sans exclusion d'avis.
+
+## Valeurs par défaut et valeurs imposées par un module (27/11/2026)
+
+La définition peut déclarer deux métadonnées optionnelles, sans modifier les contrats existants :
+
+~~~php
+new SettingDefinition('mode', 'Mode', type: 'choice', required: true,
+    choices: ['keep' => 'Conserver', 'delete' => 'Supprimer'], defaultValue: 'keep');
+new SettingDefinition('mode', 'Mode', type: 'choice', required: true,
+    choices: ['keep' => 'Conserver'], editable: false, forcedValue: 'keep');
+~~~
+
+La première déclaration initialise une valeur absente ou NULL et ne remplace jamais un choix existant. La seconde impose la valeur du module : get() retourne la valeur imposée même avant synchronisation, set() refuse une autre valeur, le BO la présente en lecture seule et l'API refuse toute écriture BO. La synchronisation transactionnelle persiste cette valeur à chaque cycle, y compris si les métadonnées n'ont pas changé. Quand la définition redevient éditable, la valeur persistée est conservée. Les valeurs sont validées au regard du type et des choix ; defaultValue exige required=true, forcedValue exige editable=false, aucune de ces options n'est admise sur un secret. Les autres paramètres gardent leur comportement. L'inventaire ne contient que les indicateurs has_default/forced et jamais les valeurs. Ne pas mettre d'informations sensibles dans une définition de module. Voir ADR 0002 pour les limites du cycle de vie. Le consommateur reste responsable de déterminer ses contraintes et de sécuriser les actions métier, notamment au moment de l'exécution. Tests et CT XT requis.

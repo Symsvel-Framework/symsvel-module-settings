@@ -19,6 +19,8 @@ use SymSvel\Module\Settings\Service\SettingInventoryDiff;
 use SymSvel\Module\Settings\Service\SettingInventoryStore;
 use SymSvel\Module\Settings\Service\SettingInventorySynchronizer;
 use SymSvel\Module\Settings\Service\SettingRegistry;
+use SymSvel\Module\Settings\Service\SettingManager;
+use SymSvel\Module\Settings\Service\SettingSecretCipher;
 
 /** Exercises inventory publication and real ORM persistence through the lifecycle. */
 final class SettingInventoryLifecycleTest extends TestCase
@@ -95,6 +97,59 @@ final class SettingInventoryLifecycleTest extends TestCase
             $inventory = $store->read($backend);
             self::assertSame(['mails', 'other'], array_keys($inventory['modules']));
             self::assertStringNotContainsString('sender@example.test', (string) file_get_contents($backend.'/.symsvel/modules-params.json'));
+
+            // A module can opt into a default and impose a value during a later synchronization.
+            $choices = ['keep' => 'Keep', 'delete' => 'Delete'];
+            $mode = new SettingDefinition('example.mode', 'Mode', type: 'choice', required: true,
+                choices: $choices, defaultValue: 'keep');
+            $locked = new SettingDefinition('example.mode', 'Mode', type: 'choice', required: true,
+                choices: ['keep' => 'Keep'], editable: false, defaultValue: 'keep', forcedValue: 'keep');
+            $provider = static fn (SettingDefinition $definition): SettingDefinitionProviderInterface => new class($definition) implements SettingDefinitionProviderInterface {
+                public function __construct(private readonly SettingDefinition $definition) {}
+                public function definitions(): iterable { yield $this->definition; }
+            };
+            $settingsFor = static fn (SettingDefinition $definition): SettingManager => new SettingManager(
+                new SettingRegistry([$provider($definition)]), $repository, $manager,
+                new SettingSecretCipher('settings-test-secret-for-managed-values'),
+            );
+            $ordinary = [$email, $name, $transport, $other];
+            $settings = $settingsFor($mode);
+            self::assertSame('keep', $settings->get('example.mode'));
+            self::assertSame([], $settings->missingRequired());
+            $sync([...$ordinary, $mode]);
+            $manager->clear();
+            self::assertSame('keep', $repository->findOneBy(['key' => 'example.mode'])?->getValue());
+            $settings->set('example.mode', 'delete');
+            $settings->flush();
+            $manager->clear();
+            $sync([...$ordinary, $mode]);
+            self::assertSame('delete', $settings->get('example.mode'));
+
+            $lockedSettings = $settingsFor($locked);
+            // Runtime is already protected even before the lifecycle synchronization.
+            self::assertSame('keep', $lockedSettings->get('example.mode'));
+            try {
+                $lockedSettings->set('example.mode', 'delete');
+                self::fail('A forced value must reject direct service writes.');
+            } catch (\InvalidArgumentException) {
+                self::assertSame('delete', $repository->findOneBy(['key' => 'example.mode'])?->getValue());
+            }
+            $sync([...$ordinary, $locked]);
+            $manager->clear();
+            self::assertSame('keep', $repository->findOneBy(['key' => 'example.mode'])?->getValue());
+            $metadata = $store->read($backend)['modules']['example']['mode'];
+            self::assertTrue($metadata['forced']);
+            self::assertTrue($metadata['has_default']);
+            self::assertArrayNotHasKey('forced_value', $metadata);
+            self::assertArrayNotHasKey('default_value', $metadata);
+            self::assertSame(['added' => [], 'removed' => [], 'changed' => []], $sync([...$ordinary, $locked]));
+
+            // Removing the constraint never restores the former delete value.
+            $sync([...$ordinary, $mode]);
+            $manager->clear();
+            self::assertSame('keep', $settingsFor($mode)->get('example.mode'));
+            self::assertArrayNotHasKey('forced', $store->read($backend)['modules']['example']['mode']);
+
         } finally {
             $manager->getConnection()->close();
             @unlink($backend.'/.symsvel/modules-params.json');

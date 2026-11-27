@@ -53,3 +53,11 @@ mise à jour d'un module. Aucun mécanisme de sélection n'est codé dans
 Tooling, et les valeurs restent gérées exclusivement par Settings.
 La validation se fait dans `SettingManager`, jamais uniquement dans
 le navigateur. Le mécanisme est utilisé par `mails.transport`.
+
+## Extension : valeurs déclaratives imposées et valeurs par défaut (27/11/2026)
+
+Le besoin concret est le verrou d'effacement GDPR : un module consommateur doit pouvoir imposer une valeur de sécurité, l'afficher en lecture seule et la persister lors de la synchronisation existante afin qu'une ancienne valeur dangereuse ne réapparaisse pas après levée de la contrainte. Une simple restriction de choix ou un masquage Svelte ne suffit pas. La règle métier reste intégralement dans le module consommateur.
+
+Exception explicite aux points 4 et 5 : les paramètres sans nouvelle métadonnée gardent exactement le cycle historique. Un provider peut déclarer une valeur par défaut non secrète pour un paramètre obligatoire, utilisée pour une ligne absente/NULL, ou une valeur imposée non secrète pour une définition en lecture seule. Une valeur imposée est prioritaire en lecture et dans les validations du manager, et écrase la valeur persistée lors de la synchronisation transactionnelle existante. Lorsque la contrainte disparaît, la dernière valeur persistée est conservée, pas l'ancienne valeur d'avant le verrouillage. Aucun hook, service métier ou scan runtime dans Settings. L'inventaire ne contient pas les valeurs déclarées ni les valeurs persistées : seulement les indicateurs de métadonnées has_default/forced. Le synchroniseur réévalue toujours les définitions, même si le diff des métadonnées est vide. La publication des valeurs imposées dépend du cycle de vie Tooling existant ; une modification de conteneur hors de ce cycle ne remplace pas la synchronisation. Aucun changement de schéma de BDD.
+
+Validation : tests unitaires et SQLite réel (valeur initiale, choix explicite, verrou, écrasement, déverrouillage, lecture et refus API), CI, CT XT avec installation/retrait d'un module consommateur. Ne pas annoncer le verrou GDPR opérationnel avant son raccordement et ces validations.

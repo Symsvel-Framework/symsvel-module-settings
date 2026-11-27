@@ -44,6 +44,8 @@ final class BoSettingsControllerTest extends TestCase
             {
                 yield new SettingDefinition('mails.sender_email', 'Sender', group: 'mail', type: 'email');
                 yield new SettingDefinition('mails.api_key', 'API key', group: 'mail', secret: true);
+                yield new SettingDefinition('example.locked', 'Locked', type: 'boolean', editable: false, forcedValue: '1');
+                yield new SettingDefinition('example.enabled', 'Enabled', type: 'boolean', required: true, defaultValue: '1');
             }
         };
         $registry = new SettingRegistry([$provider]);
@@ -84,6 +86,24 @@ final class BoSettingsControllerTest extends TestCase
             $data = json_decode($body, true, 8, JSON_THROW_ON_ERROR)['data'];
             self::assertTrue($data[1]['configured']);
             self::assertNull($data[1]['value']);
+        } finally {
+            $em->getConnection()->close();
+        }
+    }
+
+    public function testManagedValuesAreVisibleAndForcedWritesAreRefused(): void
+    {
+        [$controller, $em] = $this->fixture();
+        try {
+            $data = json_decode((string) $controller->list(Request::create('/apibo/settings'))->getContent(), true, 8, JSON_THROW_ON_ERROR)['data'];
+            $indexed = array_column($data, null, 'key');
+            self::assertSame('1', $indexed['example.locked']['value']);
+            self::assertFalse($indexed['example.locked']['editable']);
+            self::assertSame('1', $indexed['example.enabled']['value']);
+            self::assertTrue($indexed['example.enabled']['editable']);
+            self::assertSame(409, $controller->update(self::jsonRequest('/apibo/settings/example.locked', ['value' => false]), 'example.locked')->getStatusCode());
+            self::assertSame(400, $controller->update(self::jsonRequest('/apibo/settings/example.enabled', ['value' => null]), 'example.enabled')->getStatusCode());
+            self::assertSame(200, $controller->update(self::jsonRequest('/apibo/settings/example.enabled', ['value' => false]), 'example.enabled')->getStatusCode());
         } finally {
             $em->getConnection()->close();
         }

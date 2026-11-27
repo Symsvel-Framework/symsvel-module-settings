@@ -94,3 +94,7 @@ Enregistrer un paramètre est une validation (vert). Les boutons Actualiser et l
 Les couleurs et l'état désactivé proviennent des variantes natives du BO hôte,
 voir `symsvel-bo/docs/dev/bo-components.md`, sans CSS de module additionnel.
 CI et CT visuel clair/sombre requis.
+
+## Valeurs par défaut et paramètres imposés (27/11/2026)
+
+Un module peut proposer un paramètre obligatoire déjà renseigné par défaut, modifiable si aucune contrainte ne s'applique. Un paramètre imposé par le module apparaît en lecture seule avec sa valeur effective ; une requête directe de modification est également refusée. Lors de la synchronisation d'installation, mise à jour ou retrait, la valeur imposée est enregistrée. Après retrait de la contrainte, l'ancien choix antérieur à son activation n'est pas restauré automatiquement. Le responsable peut alors choisir une autre valeur si le module l'autorise. Aucun changement pour les paramètres existants sans ces métadonnées. La validation sur XT avec un module consommateur reste requise.

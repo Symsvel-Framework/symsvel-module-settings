@@ -33,6 +33,8 @@ final class SettingInventory
                 'blocking' => $definition->blocking,
                 'description' => $definition->description,
                 'editable' => $definition->editable,
+                ...($definition->defaultValue !== null ? ['has_default' => true] : []),
+                ...($definition->forcedValue !== null ? ['forced' => true] : []),
                 ...($definition->type === 'choice' ? ['choices' => $definition->choices] : []),
             ];
         }
