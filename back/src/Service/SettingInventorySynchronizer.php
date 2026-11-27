@@ -29,7 +29,7 @@ final class SettingInventorySynchronizer
         $changes = $this->diff->compare($previous['modules'], $desired['modules']);
         $stored = $this->repository->indexed();
 
-        // An existing row may predate the inventory. Never overwrite its value.
+        // Preserve existing values, except explicit module-owned enforced values.
         $desiredKeys = [];
         foreach ($desired['modules'] as $module => $parameters) {
             foreach ($parameters as $key => $metadata) {
@@ -53,8 +53,18 @@ final class SettingInventorySynchronizer
         $connection->beginTransaction();
         try {
             foreach ($desiredKeys as $key => $_) {
+                $definition = $this->registry->get($key);
+                if ($definition === null) {
+                    throw new \LogicException('Missing registered setting definition: '.$key);
+                }
+                $setting = $stored[$key] ?? new Setting($key);
+                if ($definition->forcedValue !== null) {
+                    $setting->setValue($definition->forcedValue);
+                } elseif ($setting->getValue() === null && $definition->defaultValue !== null) {
+                    $setting->setValue($definition->defaultValue);
+                }
                 if (!isset($stored[$key])) {
-                    $this->entityManager->persist(new Setting($key));
+                    $this->entityManager->persist($setting);
                 }
             }
             foreach ($changes['removed'] as $key) {
